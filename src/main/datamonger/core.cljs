@@ -21,6 +21,7 @@
       (->> [:simple :interactive]
            (map (fn [k]
                   [:li.menu-item
+                   {:class (when (= k mode) "selected")}
                    [:a {:href "#"
                         :on-click (fn [] (set-mode k))} (name k)]]))
            (into [:ul.menu]))]

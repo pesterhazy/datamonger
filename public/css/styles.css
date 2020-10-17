@@ -24,3 +24,7 @@ body {
 .menu-item a:hover {
     background-color: #f0f0f0;
 }
+
+.menu-item.selected {
+    background-color: #60f0f0;
+}
