@@ -29,7 +29,7 @@
                  [:li.menu-item
                   {:class (when (= k mode) "selected")}
                   [:a {:href (str "#?mode=" (name k))
-                       :on-click (fn [] (set-opts (fn [opts] (prn [:xxx opts]) (assoc-in opts [:params mode] (str k)))))} (name k)]]))
+                       :on-click (fn [] (set-opts (fn [opts] (assoc-in opts [:params :mode] (name k)))))} (name k)]]))
           (into [:ul.menu]))
      (case mode
        :preview [preview-ui v]
