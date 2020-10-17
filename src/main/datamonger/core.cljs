@@ -1,6 +1,8 @@
 (ns datamonger.core
-  (:require [reagent.core :as r]
-            [reagent.dom :as rd]))
+  (:require [clojure.core]
+            [reagent.core :as r]
+            [reagent.dom :as rd]
+            ["react" :as react]))
 
 (defn load+ []
   (-> (js/fetch "/examples/countries.json")
@@ -8,11 +10,26 @@
                (.json r)))))
 
 (defn main-ui []
-  [:h1 "hello"])
+  (prn ::render)
+  (let [[v update-v] (react/useState nil)]
+    (react/useEffect
+     (fn []
+       (-> (load+)
+           (.then (fn [result]
+                    (prn (type update-v))
+                    (update-v result))))
+       js/undefined)
+     #js[])
+    (if v
+      (binding [clojure.core/*print-length* 3]
+        [:div (pr-str v)])
+      [:div "loading..."])))
 
-(rd/render [main-ui] (js/document.getElementById "app"))
+(def functional-compiler (r/create-compiler {:function-components true}))
 
-(prn ::hello)
-(-> (load+)
-    (.then (fn [v]
-             (js/console.log v))))
+(defn init []
+  (rd/render [main-ui]
+             (js/document.getElementById "app")
+             functional-compiler))
+
+(init)
