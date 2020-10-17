@@ -15,4 +15,9 @@
  {:app {:target :browser
         :output-dir "public/js"
         :asset-path "/js"
-        :modules {:main {:entries [datamonger.core]}}}}}
+        :modules {:main {:entries [datamonger.core]}}}
+  :test {:target    :browser-test
+         :test-dir  "test-public"
+         :ns-regexp "-test$"
+         :devtools  {:http-port 8021
+                     :http-root "test-public"}}}}}

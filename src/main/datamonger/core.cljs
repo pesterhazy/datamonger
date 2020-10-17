@@ -29,7 +29,7 @@
                  [:li.menu-item
                   {:class (when (= k mode) "selected")}
                   [:a {:href (str "#?mode=" (name k))
-                       :on-click (fn [] (set-opts (fn [opts] (assoc-in opts [:params mode] (str k)))))} (name k)]]))
+                       :on-click (fn [] (set-opts (fn [opts] (prn [:xxx opts]) (assoc-in opts [:params mode] (str k)))))} (name k)]]))
           (into [:ul.menu]))
      (case mode
        :preview [preview-ui v]
@@ -86,6 +86,7 @@
 
 (defn main-ui []
   (let [[opts set-opts] (react/useState (hash->opts js/location.hash))
+        ctx {:opts opts :set-opts set-opts}
         new-hash (opts->hash opts)]
     (react/useEffect (fn []
                        (gobj/set js/location "hash" new-hash)
@@ -94,10 +95,8 @@
                      #js[new-hash])
     (prn [::main-ui opts])
     (if (seq (:path opts))
-      [load-ui {:opts opts
-                :set-opts set-opts}]
-      [select-ui {:opts opts
-                  :set-opts set-opts}])))
+      [load-ui ctx]
+      [select-ui ctx])))
 
 (def functional-compiler (r/create-compiler {:function-components true}))
 
