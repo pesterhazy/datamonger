@@ -20,8 +20,6 @@
 
 (def the-modes [:preview :interactive])
 
-;; FIXME: reloading broken?
-
 (defn menu-ui [{:keys [opts set-opts]} v]
   (let [mode (or (some-> opts :params :mode keyword)
                  (first the-modes))]
@@ -73,7 +71,6 @@
 
 (defn load-ui [{:keys [opts] :as ctx}]
   (let [[v update-v] (react/useState nil)]
-    (prn [::load-ui {:loaded? (boolean v)}])
     (react/useEffect
      (fn []
        (-> (load+ (:pathname opts))
@@ -95,7 +92,6 @@
                        (js/history.pushState {} nil (str js/location.origin "/" (:pathname new-hash) (when (:search new-hash) (str "?") (:search new-hash))))
                        js/undefined)
                      #js[new-hash])
-    (prn [::main-ui opts])
     (if (and (seq (:pathname opts))
              (not= "/" (:pathname opts)))
       [load-ui ctx]
@@ -103,7 +99,7 @@
 
 (def functional-compiler (r/create-compiler {:function-components true}))
 
-(defn init []
+(defn ^:dev/after-load init []
   (rd/render [main-ui]
              (js/document.getElementById "app")
              functional-compiler))
