@@ -89,13 +89,12 @@
         ctx {:opts opts :set-opts set-opts}
         new-hash (opts->hash opts)]
     (react/useEffect (fn []
-                       #_(gobj/set js/location "pathname" (:pathname new-hash))
-                       #_(gobj/set js/location "search" (:search new-hash))
-                       (prn [::effect new-hash])
+                       (js/history.pushState {} nil (str (:pathname new-hash) (when (:search new-hash) (str "?") (:search new-hash))))
                        js/undefined)
                      #js[new-hash])
     (prn [::main-ui opts])
-    (if (seq (:pathname opts))
+    (if (and (seq (:pathname opts))
+             (not= "/" (:pathname opts)))
       [load-ui ctx]
       [select-ui ctx])))
 
