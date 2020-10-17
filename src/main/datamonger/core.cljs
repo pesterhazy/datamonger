@@ -15,8 +15,8 @@
 (defn interactive-ui [v]
   (d/DataFriskView v))
 
-(defn menu-ui [v]
-  (let [[mode set-mode] (react/useState :simple)]
+(defn menu-ui [opts v]
+  (let [[mode set-mode] (react/useState (or (some-> opts :params :mode keyword) :simple))]
     [:div
      (->> [:simple :interactive]
           (map (fn [k]
@@ -47,10 +47,10 @@
                          [(keyword k) v]))
                   (into {}))}))
 
+
 (defn load-ui [opts]
-  (prn [::opts opts])
   (let [[v update-v] (react/useState nil)]
-    (prn [::load-ui  (boolean v)])
+    (prn [::load-ui {:opts opts :loaded? (boolean v)}])
     (react/useEffect
      (fn []
        (-> (load+)
@@ -59,7 +59,7 @@
        js/undefined)
      #js[])
     (if v
-      [menu-ui v]
+      [menu-ui opts v]
       [:div])))
 
 (defn main-ui []
