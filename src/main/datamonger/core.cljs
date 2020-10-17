@@ -104,5 +104,3 @@
   (rd/render [main-ui]
              (js/document.getElementById "app")
              functional-compiler))
-
-(init)
