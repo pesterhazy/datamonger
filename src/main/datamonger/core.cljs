@@ -28,8 +28,7 @@
           (map (fn [k]
                  [:li.menu-item
                   {:class (when (= k mode) "selected")}
-                  [:a {:href (str "#?mode=" (name k))
-                       :on-click (fn [] (set-opts (fn [opts] (assoc-in opts [:params :mode] (name k)))))} (name k)]]))
+                  [:a.click {:on-click (fn [] (set-opts (fn [opts] (assoc-in opts [:params :mode] (name k)))))} (name k)]]))
           (into [:ul.menu]))
      (case mode
        :preview [preview-ui v]
@@ -44,38 +43,37 @@
       (.then (fn [r]
                (js->clj r)))))
 
-(defn hash->opts [hash]
-  (let [[path search] (str/split (str/replace hash #"^#" "") #"\?")
-        params (js/URLSearchParams. (or search ""))]
-    {:path path
+(defn hash->opts [{:keys [pathname search]}]
+  (let [params (js/URLSearchParams. (or (-> search (str/replace #"^\?" "")) ""))]
+    {:pathname pathname
      :params (->> params
                   (map (fn [[k v :as xxx]]
                          [(keyword k) v]))
                   (into {}))}))
-
-(defn opts->hash [{:keys [path params]}]
-  (str "#" path (when (seq params)
-                  (str "?" (->> params
-                                (map (fn [[k v]]
-                                       (str (name k) "=" (str v))))
-                                (str/join "&"))))))
+;; FIXME: rename
+(defn opts->hash [{:keys [pathname params]}]
+  {:pathname pathname
+   :search (when (seq params)
+             (str "?" (->> params
+                           (map (fn [[k v]]
+                                  (str (name k) "=" (str v))))
+                           (str/join "&"))))})
 
 (defn select-ui [{:keys [set-opts]}]
   [:div
    [:div
-    [:a.click {:on-click (fn [] (set-opts (fn [opts] (assoc opts :path "widget.json"))))}
+    [:a.click {:on-click (fn [] (set-opts (fn [opts] (assoc opts :pathname "widget.json"))))}
      "widget.json"]]
    [:div
-    [:a.click {:on-click (fn [] (set-opts (fn [opts] (assoc opts :path "countries.json"))))}
+    [:a.click {:on-click (fn [] (set-opts (fn [opts] (assoc opts :pathname "countries.json"))))}
      "countries.json"]]])
 
 (defn load-ui [{:keys [opts] :as ctx}]
   (let [[v update-v] (react/useState nil)]
-    (assert (seq (:path opts)))
     (prn [::load-ui {:loaded? (boolean v)}])
     (react/useEffect
      (fn []
-       (-> (load+ (:path opts))
+       (-> (load+ (:pathname opts))
            (.then (fn [result]
                     (update-v result))))
        js/undefined)
@@ -85,16 +83,19 @@
       [:div])))
 
 (defn main-ui []
-  (let [[opts set-opts] (react/useState (hash->opts js/location.hash))
+  ;; FIXME: prefix with /app
+  (let [[opts set-opts] (react/useState (hash->opts {:pathname js/location.pathname
+                                                     :search js/location.search}))
         ctx {:opts opts :set-opts set-opts}
         new-hash (opts->hash opts)]
     (react/useEffect (fn []
-                       (gobj/set js/location "hash" new-hash)
+                       #_(gobj/set js/location "pathname" (:pathname new-hash))
+                       #_(gobj/set js/location "search" (:search new-hash))
                        (prn [::effect new-hash])
                        js/undefined)
                      #js[new-hash])
     (prn [::main-ui opts])
-    (if (seq (:path opts))
+    (if (seq (:pathname opts))
       [load-ui ctx]
       [select-ui ctx])))
 
