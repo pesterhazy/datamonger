@@ -22,7 +22,7 @@
   (let [mode (or (some-> opts :params :mode keyword)
                  (first the-modes))]
     [:div
-     [:div [:a.click {:on-click (fn [] (set-opts {}))} "<< back"]]
+     [:div.back [:a.click {:on-click (fn [] (set-opts {}))} "<< back"]]
      (->> the-modes
           (map (fn [k]
                  [:li.menu-item
