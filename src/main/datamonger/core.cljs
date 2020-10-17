@@ -9,7 +9,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; FIXME: no hash
+;; FIXME: hashp
 
 (defn preview-ui [v]
   (binding [clojure.core/*print-length* 3]
@@ -52,6 +52,7 @@
                          [(keyword k) v]))
                   (into {}))}))
 ;; FIXME: rename
+
 (defn opts->hash [{:keys [pathname params]}]
   {:pathname pathname
    :search (when (seq params)
@@ -87,11 +88,17 @@
   (let [[opts set-opts] (react/useState (hash->opts {:pathname js/location.pathname
                                                      :search js/location.search}))
         ctx {:opts opts :set-opts set-opts}
-        new-hash (opts->hash opts)]
+        new-hash (opts->hash opts)
+        new-url (str (if (str/starts-with? (or (:pathname new-hash) "") "/")
+                       nil
+                       "/")
+                     (:pathname new-hash)
+                     (when (:search new-hash) (str "?") (:search new-hash)))]
     (react/useEffect (fn []
-                       (js/history.pushState {} nil (str js/location.origin "/" (:pathname new-hash) (when (:search new-hash) (str "?") (:search new-hash))))
+                       (prn [:new-url new-url])
+                       (js/history.pushState {} nil (str js/location.origin new-url))
                        js/undefined)
-                     #js[new-hash])
+                     #js[new-url])
     (if (and (seq (:pathname opts))
              (not= "/" (:pathname opts)))
       [load-ui ctx]
