@@ -15,10 +15,13 @@
 (defn interactive-ui [v]
   (d/DataFriskView v))
 
+(def the-modes [:simple :interactive])
+
 (defn menu-ui [opts v]
-  (let [[mode set-mode] (react/useState (or (some-> opts :params :mode keyword) :simple))]
+  (let [[mode set-mode] (react/useState (or (some-> opts :params :mode keyword)
+                                            (first the-modes)))]
     [:div
-     (->> [:simple :interactive]
+     (->> the-modes
           (map (fn [k]
                  [:li.menu-item
                   {:class (when (= k mode) "selected")}
