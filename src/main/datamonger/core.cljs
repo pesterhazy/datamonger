@@ -1,5 +1,6 @@
 (ns datamonger.core
   (:require [clojure.core]
+            [clojure.string :as str]
             [datafrisk.core :as d]
             [reagent.core :as r]
             [reagent.dom :as rd]
@@ -21,7 +22,7 @@
           (map (fn [k]
                  [:li.menu-item
                   {:class (when (= k mode) "selected")}
-                  [:a {:href "#"
+                  [:a {:href (str "#?mode=" (name k))
                        :on-click (fn [] (set-mode k))} (name k)]]))
           (into [:ul.menu]))
      (case mode
@@ -37,7 +38,17 @@
       (.then (fn [r]
                (js->clj r)))))
 
-(defn load-ui []
+(defn hash->opts [hash]
+  (let [[path search] (str/split (str/replace hash #"^#" "") #"\?")
+        params (js/URLSearchParams. search)]
+    {:path path
+     :params (->> params
+                  (map (fn [[k v]]
+                         [(keyword k) v]))
+                  (into {}))}))
+
+(defn load-ui [opts]
+  (prn [::opts opts])
   (let [[v update-v] (react/useState nil)]
     (prn [::load-ui  (boolean v)])
     (react/useEffect
@@ -52,7 +63,7 @@
       [:div])))
 
 (defn main-ui []
-  [load-ui])
+  [load-ui (hash->opts js/location.hash)])
 
 (def functional-compiler (r/create-compiler {:function-components true}))
 
