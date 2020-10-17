@@ -20,3 +20,4 @@ pom.xml.asc
 .hg/
 .lsp/sqlite.1.db
 public/examples
+test-public
