@@ -17,14 +17,13 @@
 (defn view-ui [v]
   (let [[mode set-mode] (react/useState :simple)]
     [:div
-     [:<>
-      (->> [:simple :interactive]
-           (map (fn [k]
-                  [:li.menu-item
-                   {:class (when (= k mode) "selected")}
-                   [:a {:href "#"
-                        :on-click (fn [] (set-mode k))} (name k)]]))
-           (into [:ul.menu]))]
+     (->> [:simple :interactive]
+          (map (fn [k]
+                 [:li.menu-item
+                  {:class (when (= k mode) "selected")}
+                  [:a {:href "#"
+                       :on-click (fn [] (set-mode k))} (name k)]]))
+          (into [:ul.menu]))
      (case mode
        :simple [simple-ui v]
        :interactive [interactive-ui v])]))
