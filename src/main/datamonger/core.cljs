@@ -8,6 +8,8 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; FIXME: no hash
+
 (defn preview-ui [v]
   (binding [clojure.core/*print-length* 3]
     [:div (pr-str v)]))
@@ -34,8 +36,8 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn load+ []
-  (-> (js/fetch "/examples/countries.json")
+(defn load+ [fname]
+  (-> (js/fetch (str "/examples/" fname))
       (.then (fn [r]
                (.json r)))
       (.then (fn [r]
@@ -53,10 +55,11 @@
 
 (defn load-ui [opts]
   (let [[v update-v] (react/useState nil)]
+    (assert (seq (:path opts)))
     (prn [::load-ui {:opts opts :loaded? (boolean v)}])
     (react/useEffect
      (fn []
-       (-> (load+)
+       (-> (load+ (:path opts))
            (.then (fn [result]
                     (update-v result))))
        js/undefined)
