@@ -44,22 +44,24 @@
       (.then (fn [r]
                (js->clj r)))))
 
-(defn hash->opts [{:keys [pathname search]}]
-  (let [params (js/URLSearchParams. (or (-> search (str/replace #"^\?" "")) ""))]
+(defn url->opts [url]
+  (let [[pathname search] (str/split url #"\?")
+        params (js/URLSearchParams. (or search ""))]
     {:pathname pathname
      :params (->> params
                   (map (fn [[k v :as xxx]]
                          [(keyword k) v]))
                   (into {}))}))
-;; FIXME: rename
-
-(defn opts->hash [{:keys [pathname params]}]
-  {:pathname pathname
-   :search (when (seq params)
-             (str "?" (->> params
-                           (map (fn [[k v]]
-                                  (str (name k) "=" (str v))))
-                           (str/join "&"))))})
+(defn opts->url [{:keys [pathname params]}]
+  (str (str (if (str/starts-with? (or pathname "") "/")
+              nil
+              "/")
+            pathname)
+       (when (seq params)
+         (str "?" (->> params
+                       (map (fn [[k v]]
+                              (str (name k) "=" (str v))))
+                       (str/join "&"))))))
 
 (defn select-ui [{:keys [set-opts]}]
   [:div
@@ -85,15 +87,9 @@
 
 (defn main-ui []
   ;; FIXME: prefix with /app
-  (let [[opts set-opts] (react/useState (hash->opts {:pathname js/location.pathname
-                                                     :search js/location.search}))
+  (let [[opts set-opts] (react/useState (url->opts (str js/location.pathname js/location.search)))
         ctx {:opts opts :set-opts set-opts}
-        new-hash (opts->hash opts)
-        new-url (str (if (str/starts-with? (or (:pathname new-hash) "") "/")
-                       nil
-                       "/")
-                     (:pathname new-hash)
-                     (when (:search new-hash) (str "?") (:search new-hash)))]
+        new-url (opts->url opts)]
     (react/useEffect (fn []
                        (prn [:new-url new-url])
                        (js/history.pushState {} nil (str js/location.origin new-url))
