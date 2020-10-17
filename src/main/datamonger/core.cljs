@@ -52,11 +52,17 @@
                          [(keyword k) v]))
                   (into {}))}))
 
+(defn select-ui [opts]
+  [:div
+   [:div
+    [:a {:href "#widget.json"} "widget.json"]]
+   [:div
+    [:a {:href "#countries.json"} "countries.json"]]])
 
 (defn load-ui [opts]
   (let [[v update-v] (react/useState nil)]
     (assert (seq (:path opts)))
-    (prn [::load-ui {:opts opts :loaded? (boolean v)}])
+    (prn [::load-ui {:loaded? (boolean v)}])
     (react/useEffect
      (fn []
        (-> (load+ (:path opts))
@@ -69,7 +75,11 @@
       [:div])))
 
 (defn main-ui []
-  [load-ui (hash->opts js/location.hash)])
+  (let [opts (hash->opts js/location.hash)]
+    (prn [::main-ui opts])
+    (if (seq (:path opts))
+      [load-ui opts]
+      [select-ui opts])))
 
 (def functional-compiler (r/create-compiler {:function-components true}))
 
