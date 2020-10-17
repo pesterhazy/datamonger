@@ -3,8 +3,6 @@
             [clojure.string :as str]
             [datafrisk.core :as d]
             [goog.object :as gobj]
-            [reagent.core :as r]
-            [reagent.dom :as rd]
             ["react" :as react]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -99,10 +97,3 @@
              (not= "/" (:pathname opts)))
       [load-ui ctx]
       [select-ui ctx])))
-
-(def functional-compiler (r/create-compiler {:function-components true}))
-
-(defn ^:dev/after-load init []
-  (rd/render [main-ui]
-             (js/document.getElementById "app")
-             functional-compiler))
