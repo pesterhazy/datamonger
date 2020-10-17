@@ -7,10 +7,26 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defn simple-ui [v]
+  (binding [clojure.core/*print-length* 3]
+    [:div (pr-str v)]))
+
+(defn interactive-ui [v]
+  (d/DataFriskView v))
+
 (defn view-ui [v]
-  (d/DataFriskView v)
-  #_(binding [clojure.core/*print-length* 3]
-      [:div (pr-str v)]))
+  (let [[mode set-mode] (react/useState :simple)]
+    [:div
+     [:<>
+      (->> [:simple :interactive]
+           (map (fn [k]
+                  [:li.menu-item
+                   [:a {:href "#"
+                        :on-click (fn [] (set-mode k))} (name k)]]))
+           (into [:ul.menu]))]
+     (case mode
+       :simple [simple-ui v]
+       :interactive [interactive-ui v])]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

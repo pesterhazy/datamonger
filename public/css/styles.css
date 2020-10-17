@@ -1,0 +1,26 @@
+body {
+    background-color: #decade;
+}
+
+.menu {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.menu-item {
+    float: left;
+}
+
+.menu-item a {
+    color: blue;
+    display: block;
+    text-align: center;
+    padding: 16px;
+    text-decoration: none;
+}
+
+.menu-item a:hover {
+    background-color: #f0f0f0;
+}
