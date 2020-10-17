@@ -10,13 +10,11 @@
                (.json r)))))
 
 (defn main-ui []
-  (prn ::render)
   (let [[v update-v] (react/useState nil)]
     (react/useEffect
      (fn []
        (-> (load+)
            (.then (fn [result]
-                    (prn (type update-v))
                     (update-v result))))
        js/undefined)
      #js[])
