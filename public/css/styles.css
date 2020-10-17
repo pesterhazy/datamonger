@@ -29,3 +29,8 @@ body {
 .menu-item.selected {
     background-color: #60f0f0;
 }
+
+.click {
+    text-decoration: underline;
+    cursor: pointer;
+}

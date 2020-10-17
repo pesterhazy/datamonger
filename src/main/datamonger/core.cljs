@@ -2,6 +2,7 @@
   (:require [clojure.core]
             [clojure.string :as str]
             [datafrisk.core :as d]
+            [goog.object :as gobj]
             [reagent.core :as r]
             [reagent.dom :as rd]
             ["react" :as react]))
@@ -19,16 +20,16 @@
 
 (def the-modes [:preview :interactive])
 
-(defn menu-ui [opts v]
-  (let [[mode set-mode] (react/useState (or (some-> opts :params :mode keyword)
-                                            (first the-modes)))]
+(defn menu-ui [{:keys [opts set-opts]} v]
+  (let [mode (or (some-> opts :params :mode keyword)
+                 (first the-modes))]
     [:div
      (->> the-modes
           (map (fn [k]
                  [:li.menu-item
                   {:class (when (= k mode) "selected")}
                   [:a {:href (str "#?mode=" (name k))
-                       :on-click (fn [] (set-mode k))} (name k)]]))
+                       :on-click (fn [] (set-opts (fn [opts] (assoc-in opts [:params mode] (str k)))))} (name k)]]))
           (into [:ul.menu]))
      (case mode
        :preview [preview-ui v]
@@ -45,21 +46,29 @@
 
 (defn hash->opts [hash]
   (let [[path search] (str/split (str/replace hash #"^#" "") #"\?")
-        params (js/URLSearchParams. search)]
+        params (js/URLSearchParams. (or search ""))]
     {:path path
      :params (->> params
-                  (map (fn [[k v]]
+                  (map (fn [[k v :as xxx]]
                          [(keyword k) v]))
                   (into {}))}))
 
-(defn select-ui [opts]
+(defn opts->hash [{:keys [path params]}]
+  (str "#" path "?" (->> params
+                         (map (fn [[k v]]
+                                (str (name k) "=" (str v))))
+                         (str/join "&"))))
+
+(defn select-ui [{:keys [set-opts]}]
   [:div
    [:div
-    [:a {:href "#widget.json"} "widget.json"]]
+    [:a.click {:on-click (fn [] (set-opts (fn [opts] (assoc opts :path "widget.json"))))}
+     "widget.json"]]
    [:div
-    [:a {:href "#countries.json"} "countries.json"]]])
+    [:a.click {:on-click (fn [] (set-opts (fn [opts] (assoc opts :path "countries.json"))))}
+     "countries.json"]]])
 
-(defn load-ui [opts]
+(defn load-ui [{:keys [opts] :as ctx}]
   (let [[v update-v] (react/useState nil)]
     (assert (seq (:path opts)))
     (prn [::load-ui {:loaded? (boolean v)}])
@@ -71,15 +80,23 @@
        js/undefined)
      #js[])
     (if v
-      [menu-ui opts v]
+      [menu-ui ctx v]
       [:div])))
 
 (defn main-ui []
-  (let [opts (hash->opts js/location.hash)]
+  (let [[opts set-opts] (react/useState (hash->opts js/location.hash))
+        new-hash (opts->hash opts)]
+    (react/useEffect (fn []
+                       (gobj/set js/location "hash" new-hash)
+                       (prn [::effect new-hash])
+                       js/undefined)
+                     #js[new-hash])
     (prn [::main-ui opts])
     (if (seq (:path opts))
-      [load-ui opts]
-      [select-ui opts])))
+      [load-ui {:opts opts
+                :set-opts set-opts}]
+      [select-ui {:opts opts
+                  :set-opts set-opts}])))
 
 (def functional-compiler (r/create-compiler {:function-components true}))
 
