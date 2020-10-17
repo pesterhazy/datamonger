@@ -8,14 +8,14 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn simple-ui [v]
+(defn preview-ui [v]
   (binding [clojure.core/*print-length* 3]
     [:div (pr-str v)]))
 
 (defn interactive-ui [v]
   (d/DataFriskView v))
 
-(def the-modes [:simple :interactive])
+(def the-modes [:preview :interactive])
 
 (defn menu-ui [opts v]
   (let [[mode set-mode] (react/useState (or (some-> opts :params :mode keyword)
@@ -29,7 +29,7 @@
                        :on-click (fn [] (set-mode k))} (name k)]]))
           (into [:ul.menu]))
      (case mode
-       :simple [simple-ui v]
+       :preview [preview-ui v]
        :interactive [interactive-ui v])]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
