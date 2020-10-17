@@ -14,7 +14,7 @@
 (defn interactive-ui [v]
   (d/DataFriskView v))
 
-(defn view-ui [v]
+(defn menu-ui [v]
   (let [[mode set-mode] (react/useState :simple)]
     [:div
      (->> [:simple :interactive]
@@ -37,8 +37,9 @@
       (.then (fn [r]
                (js->clj r)))))
 
-(defn main-ui []
+(defn load-ui []
   (let [[v update-v] (react/useState nil)]
+    (prn [::load-ui  (boolean v)])
     (react/useEffect
      (fn []
        (-> (load+)
@@ -47,8 +48,11 @@
        js/undefined)
      #js[])
     (if v
-      [view-ui v]
+      [menu-ui v]
       [:div])))
+
+(defn main-ui []
+  [load-ui])
 
 (def functional-compiler (r/create-compiler {:function-components true}))
 
