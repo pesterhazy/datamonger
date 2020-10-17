@@ -20,10 +20,13 @@
 
 (def the-modes [:preview :interactive])
 
+;; FIXME: reloading broken?
+
 (defn menu-ui [{:keys [opts set-opts]} v]
   (let [mode (or (some-> opts :params :mode keyword)
                  (first the-modes))]
     [:div
+     [:div [:a.click {:on-click (fn [] (set-opts {}))} "<< back"]]
      (->> the-modes
           (map (fn [k]
                  [:li.menu-item
@@ -89,7 +92,7 @@
         ctx {:opts opts :set-opts set-opts}
         new-hash (opts->hash opts)]
     (react/useEffect (fn []
-                       (js/history.pushState {} nil (str (:pathname new-hash) (when (:search new-hash) (str "?") (:search new-hash))))
+                       (js/history.pushState {} nil (str js/location.origin "/" (:pathname new-hash) (when (:search new-hash) (str "?") (:search new-hash))))
                        js/undefined)
                      #js[new-hash])
     (prn [::main-ui opts])
