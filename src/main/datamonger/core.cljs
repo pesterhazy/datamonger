@@ -54,10 +54,11 @@
                   (into {}))}))
 
 (defn opts->hash [{:keys [path params]}]
-  (str "#" path "?" (->> params
-                         (map (fn [[k v]]
-                                (str (name k) "=" (str v))))
-                         (str/join "&"))))
+  (str "#" path (when (seq params)
+                  (str "?" (->> params
+                                (map (fn [[k v]]
+                                       (str (name k) "=" (str v))))
+                                (str/join "&"))))))
 
 (defn select-ui [{:keys [set-opts]}]
   [:div
