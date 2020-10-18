@@ -22,7 +22,7 @@
       (js/console.error e)
       {:error e})))
 
-(defn pprint-ui [v]
+(defn transform-ui [co v]
   (let [!el (atom nil)
         [code set-code] (react/useState (js/localStorage.getItem "filter"))
         submit (fn [s]
@@ -42,7 +42,10 @@
                                    (.preventDefault e)))}]
       [:a.click {:on-click (fn [] (submit (-> @!el .-value)))}
        "apply"]]
-     [:pre.pprint (with-out-str (clojure.pprint/pprint (transform code v)))]]))
+     [co (transform code v)]]))
+
+(defn pprint-ui [v]
+  [:pre.pprint (with-out-str (clojure.pprint/pprint v))])
 
 (defn interactive-ui [v]
   (d/DataFriskView v))
@@ -56,7 +59,7 @@
 
 (defn view-ui [mode v]
   (let [co (or (the-modes mode) (throw "Unknown mode"))]
-    [co v]))
+    [transform-ui co v]))
 
 (defn menu-ui [{:keys [opts set-opts]} v]
   (let [mode (or (some-> opts :params :mode keyword)
