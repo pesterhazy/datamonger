@@ -4,6 +4,7 @@
             [clojure.string :as str]
             [datafrisk.core :as d]
             [goog.object :as gobj]
+            [sci.core :as sci]
             ["react" :as react]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -12,22 +13,36 @@
   (binding [clojure.core/*print-length* 3]
     [:div (pr-str v)]))
 
+(defn transform [code v]
+  (try
+    (if (str/blank? code)
+      v
+      (sci/eval-string code {:bindings {'% v}}))
+    (catch :default e
+      (js/console.error e)
+      {:error e})))
+
 (defn pprint-ui [v]
-  (let [submit (fn [])]
+  (let [!el (atom nil)
+        [code set-code] (react/useState (js/localStorage.getItem "filter"))
+        submit (fn [s]
+                 (set-code #pp s))]
     [:div
      [:div {:style {:width 600}}
-      [:textarea {:style {:width 600 :height 200 :padding 6}
-                  :default-value (or (js/localStorage.getItem "filter") "")
-                  :on-change (fn [^js e]
+      [:textarea {:ref (fn [el] (reset! !el el))
+                  :style {:width 600 :height 200 :padding 6}
+                  :default-value (or code "")
+                  :on-change (fn [^js/Event e]
                                (js/localStorage.setItem "filter"
                                                         (-> e .-target .-value)))
-                  :on-key-down (fn [^js e]
+                  :on-key-down (fn [^js/Event e]
                                  (when (and (= "Enter" (gobj/get e "key"))
                                             (gobj/get e "shiftKey"))
-                                   (submit)
+                                   (submit (-> e .-target .-value))
                                    (.preventDefault e)))}]
-      [:a.click {:on-click submit} "apply"]]
-     [:pre.pprint (with-out-str (clojure.pprint/pprint v))]]))
+      [:a.click {:on-click (fn [] (submit (-> @!el .-value)))}
+       "apply"]]
+     [:pre.pprint (with-out-str (clojure.pprint/pprint (transform code v)))]]))
 
 (defn interactive-ui [v]
   (d/DataFriskView v))
