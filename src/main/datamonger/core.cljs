@@ -26,7 +26,7 @@
   (let [!el (atom nil)
         [code set-code] (react/useState (js/localStorage.getItem "filter"))
         submit (fn [s]
-                 (set-code #pp s))]
+                 (set-code s))]
     [:div
      [:div {:style {:width 600}}
       [:textarea {:ref (fn [el] (reset! !el el))
