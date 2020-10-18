@@ -1,5 +1,5 @@
 body {
-    background-color: #decade;
+    background-color: white;
 }
 
 .menu {
@@ -26,7 +26,7 @@ body {
     background-color: #f0f0f0;
 }
 
-.menu-item.selected {
+.menu-item a.selected {
     background-color: #60f0f0;
 }
 

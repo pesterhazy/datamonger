@@ -24,9 +24,9 @@
      (->> the-modes
           (map (fn [k]
                  [:li.menu-item
-                  {:class (when (= k mode) "selected")}
                   [:a.click
-                   {:on-click
+                   {:class (when (= k mode) "selected")
+                    :on-click
                     (fn [] (set-opts (fn [opts]
                                        (assoc-in opts [:params :mode] (name k)))))}
                    (name k)]]))
