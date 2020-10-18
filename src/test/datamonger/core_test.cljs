@@ -2,8 +2,6 @@
   (:require [clojure.test :as t]
             [datamonger.core :as x]))
 
-;; FIXME: reloading error
-
 (defn roundtrip [s]
   (t/is (= s (-> s (x/url->opts) (x/opts->url)))))
 
