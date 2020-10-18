@@ -64,13 +64,14 @@
                        (str/join "&"))))))
 
 (defn select-ui [{:keys [set-opts]}]
-  [:div
-   [:div
-    [:a.click {:on-click (fn [] (set-opts (fn [opts] (assoc opts :pathname "widget.json"))))}
-     "widget.json"]]
-   [:div
-    [:a.click {:on-click (fn [] (set-opts (fn [opts] (assoc opts :pathname "countries.json"))))}
-     "countries.json"]]])
+  (->> ["widget.json" "countries.json"]
+       (map (fn [fname]
+              [:div
+               [:a.click
+                {:on-click
+                 (fn [] (set-opts (fn [opts] (assoc opts :pathname fname))))}
+                fname]]))
+       (into [:div])))
 
 (defn load-ui [{:keys [opts] :as ctx}]
   (let [[v update-v] (react/useState nil)]
