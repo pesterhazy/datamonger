@@ -1,5 +1,6 @@
 (ns datamonger.core
   (:require [clojure.core]
+            [clojure.pprint]
             [clojure.string :as str]
             [datafrisk.core :as d]
             [goog.object :as gobj]
@@ -11,11 +12,17 @@
   (binding [clojure.core/*print-length* 3]
     [:div (pr-str v)]))
 
+(defn pprint-ui [v]
+  [:pre.pprint (with-out-str (clojure.pprint/pprint v))])
+
 (defn interactive-ui [v]
   (d/DataFriskView v))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (def the-modes
   {:preview preview-ui
+   :pprint pprint-ui
    :interactive interactive-ui})
 
 (defn view-ui [mode v]
