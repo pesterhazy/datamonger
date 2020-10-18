@@ -7,8 +7,6 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; FIXME: hashp
-
 (defn preview-ui [v]
   (binding [clojure.core/*print-length* 3]
     [:div (pr-str v)]))
