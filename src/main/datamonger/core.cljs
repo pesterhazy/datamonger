@@ -9,10 +9,6 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn preview-ui [v]
-  (binding [clojure.core/*print-length* 3]
-    [:div (pr-str v)]))
-
 (defn transform [code v]
   (try
     (if (str/blank? code)
@@ -22,9 +18,10 @@
       (js/console.error e)
       {:error e})))
 
-(defn transform-ui [co v]
+(defn transform-ui [opts co v]
   (let [!el (atom nil)
-        [code set-code] (react/useState (js/localStorage.getItem "filter"))
+        ls-key (str "filter-"(-> opts :pathname))
+        [code set-code] (react/useState (js/localStorage.getItem ls-key))
         submit (fn [s]
                  (set-code s))]
     [:div
@@ -33,7 +30,7 @@
                   :style {:width 600 :height 200 :padding 6}
                   :default-value (or code "")
                   :on-change (fn [^js/Event e]
-                               (js/localStorage.setItem "filter"
+                               (js/localStorage.setItem ls-key
                                                         (-> e .-target .-value)))
                   :on-key-down (fn [^js/Event e]
                                  (when (and (= "Enter" (gobj/get e "key"))
@@ -43,6 +40,12 @@
       [:a.click {:on-click (fn [] (submit (-> @!el .-value)))}
        "apply"]]
      [co (transform code v)]]))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn preview-ui [v]
+  (binding [clojure.core/*print-length* 3]
+    [:div (pr-str v)]))
 
 (defn pprint-ui [v]
   [:pre.pprint (with-out-str (clojure.pprint/pprint v))])
@@ -57,9 +60,9 @@
    :pprint pprint-ui
    :interactive interactive-ui})
 
-(defn view-ui [mode v]
+(defn view-ui [opts mode v]
   (let [co (or (the-modes mode) (throw "Unknown mode"))]
-    [transform-ui co v]))
+    [transform-ui opts co v]))
 
 (defn menu-ui [{:keys [opts set-opts]} v]
   (let [mode (or (some-> opts :params :mode keyword)
@@ -76,7 +79,7 @@
                                        (assoc-in opts [:params :mode] (name k)))))}
                    (name k)]]))
           (into [:ul.menu]))
-     [view-ui mode v]]))
+     [view-ui opts mode v]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
