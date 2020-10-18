@@ -13,7 +13,21 @@
     [:div (pr-str v)]))
 
 (defn pprint-ui [v]
-  [:pre.pprint (with-out-str (clojure.pprint/pprint v))])
+  (let [submit (fn [])]
+    [:div
+     [:div {:style {:width 600}}
+      [:textarea {:style {:width 600 :height 200 :padding 6}
+                  :default-value (or (js/localStorage.getItem "filter") "")
+                  :on-change (fn [^js e]
+                               (js/localStorage.setItem "filter"
+                                                        (-> e .-target .-value)))
+                  :on-key-down (fn [^js e]
+                                 (when (and (= "Enter" (gobj/get e "key"))
+                                            (gobj/get e "shiftKey"))
+                                   (submit)
+                                   (.preventDefault e)))}]
+      [:a.click {:on-click submit} "apply"]]
+     [:pre.pprint (with-out-str (clojure.pprint/pprint v))]]))
 
 (defn interactive-ui [v]
   (d/DataFriskView v))
