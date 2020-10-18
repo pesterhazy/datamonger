@@ -14,14 +14,20 @@
 (defn interactive-ui [v]
   (d/DataFriskView v))
 
-(def the-modes [:preview :interactive])
+(def the-modes
+  {:preview preview-ui
+   :interactive interactive-ui})
+
+(defn view-ui [mode v]
+  (let [co (or (the-modes mode) (throw "Unknown mode"))]
+    [co v]))
 
 (defn menu-ui [{:keys [opts set-opts]} v]
   (let [mode (or (some-> opts :params :mode keyword)
-                 (first the-modes))]
+                 (first (keys the-modes)))]
     [:div
      [:div.back [:a.click {:on-click (fn [] (set-opts {}))} "<< back"]]
-     (->> the-modes
+     (->> (keys the-modes)
           (map (fn [k]
                  [:li.menu-item
                   [:a.click
@@ -31,9 +37,7 @@
                                        (assoc-in opts [:params :mode] (name k)))))}
                    (name k)]]))
           (into [:ul.menu]))
-     (case mode
-       :preview [preview-ui v]
-       :interactive [interactive-ui v])]))
+     [view-ui mode v]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -42,7 +46,7 @@
       (.then (fn [r]
                (.json r)))
       (.then (fn [r]
-               (js->clj r)))))
+               (js->clj r :keywordize-keys true)))))
 
 (defn url->opts [url]
   (let [[pathname search] (str/split url #"\?")
