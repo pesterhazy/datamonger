@@ -34,7 +34,8 @@
                                                         (-> e .-target .-value)))
                   :on-key-down (fn [^js/Event e]
                                  (when (and (= "Enter" (gobj/get e "key"))
-                                            (gobj/get e "shiftKey"))
+                                            (or (gobj/get e "ctrlKey")
+                                                (gobj/get e "metaKey")))
                                    (submit (-> e .-target .-value))
                                    (.preventDefault e)))}]
       [:a.click {:on-click (fn [] (submit (-> @!el .-value)))}
