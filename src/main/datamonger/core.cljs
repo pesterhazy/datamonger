@@ -40,11 +40,13 @@
 (defn patch-in
   [m [k & ks] v]
   (if ks
-    (patch m k (patch-in (get m k) ks v))
+    (if (and (vector? k) (= 2 (count k)) (= :VEC (first k)))
+      (patch m k (patch-in (get m (second k)) ks v))
+      (patch m k (patch-in (get m k) ks v)))
     (patch m k v)))
 
 (defn implode [cs]
-  (->> #pp cs
+  (->> cs
        (reduce (fn [acc v]
                  (patch-in acc (pop v) (peek v)))
                nil)))

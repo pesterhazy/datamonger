@@ -37,9 +37,9 @@
   (let [v {:foo {:bar [:a :b]}}]
     (is (= v (x/implode (x/explode v))) "maps"))
   (let [v [[:a :b]]]
-    (is (= v (x/implode #pp (x/explode v))) "vector")))
+    (is (= v (x/implode (x/explode v))) "vector")))
 
-(def test-v
+(def complex-v
   '{:source-paths
     ["src/dev"
      "src/main"
@@ -65,5 +65,5 @@
             :devtools  {:http-port 8021
                         :http-root "test-public"}}}})
 
-#_(deftest t-complex
-    (is (= #pp test-v #pp (x/implode (x/explode test-v)))))
+(deftest implode-explode-complex
+  (is (= complex-v (x/implode (x/explode complex-v))) "vector"))
