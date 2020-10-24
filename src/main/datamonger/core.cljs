@@ -104,13 +104,19 @@
    :pprint pprint-ui
    :interactive interactive-ui})
 
-(defn view-ui [opts mode v]
+(def the-transforms
+  {:sci transform-sci
+   :flat transform-flat})
+
+(defn view-ui [opts mode transform v]
   (let [co (or (the-modes mode) (throw "Unknown mode"))]
-    [transform-ui opts co transform-flat v]))
+    [transform-ui opts co (the-transforms transform) v]))
 
 (defn menu-ui [{:keys [opts set-opts]} v]
   (let [mode (or (some-> opts :params :mode keyword)
-                 (first (keys the-modes)))]
+                 (first (keys the-modes)))
+        transform (or (some-> opts :params :transform keyword)
+                      (first (keys the-transforms)))]
     [:div
      [:div.back [:a.click {:on-click (fn [] (set-opts {}))} "<< back"]]
      (->> (keys the-modes)
@@ -123,7 +129,17 @@
                                        (assoc-in opts [:params :mode] (name k)))))}
                    (name k)]]))
           (into [:ul.menu]))
-     [view-ui opts mode v]]))
+     (->> (keys the-transforms)
+          (map (fn [k]
+                 [:li.menu-item
+                  [:a.click
+                   {:class (when (= k transform) "selected")
+                    :on-click
+                    (fn [] (set-opts (fn [opts]
+                                       (assoc-in opts [:params :transform] (name k)))))}
+                   (name k)]]))
+          (into [:ul.menu]))
+     [view-ui opts mode transform v]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
