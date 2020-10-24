@@ -223,7 +223,8 @@
   (->> ["/examples/json/widget.json"
         "/examples/json/countries.json"
         "/examples/json/package.json"
-        "/examples/edn/shadow-cljs.edn"]
+        "/examples/edn/shadow-cljs.edn"
+        "/examples/edn/presentation.edn"]
        (map (fn [fname]
               [:div
                [:a.click
