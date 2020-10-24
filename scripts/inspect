@@ -4,4 +4,4 @@ set -euo pipefail
 
 s=$(cat "$@" | urlencode)
 
-open "http://localhost:8080/json#data=${s}"
+open "http://localhost:8080/from-hash/json#data=${s}"

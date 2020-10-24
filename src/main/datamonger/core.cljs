@@ -188,7 +188,7 @@
 
 (defn load+ [path]
   (js/Promise.resolve
-   (if-let [id (some-> (re-matches #"^/blob/(.*)$" path) second)]
+   (if-let [id (some-> (re-matches #"^/blob/json/(.*)$" path) second)]
      (-> (js/localStorage.getItem id)
          js/JSON.parse
          (js->clj :keywordize-keys true))
@@ -272,10 +272,10 @@
       [select-ui ctx])))
 
 (defn init []
-  (when (= "/json" js/location.pathname)
+  (when-let [[_ kind] (re-matches #"^/from-hash/(json|edn)$" js/location.pathname)]
     (let [params (js/URLSearchParams. (-> js/location.hash
                                           (str/replace #"^#" "")))
           data (.get params "data")
           id (random-uuid)]
       (js/localStorage.setItem (str id) data)
-      (js/history.pushState {} nil (str js/location.origin (str "/blob/" id))))))
+      (js/history.pushState {} nil (str js/location.origin (str "/blob/" kind "/" id))))))
