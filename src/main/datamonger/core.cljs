@@ -44,7 +44,7 @@
     (patch m k v)))
 
 (defn implode [cs]
-  (->> cs
+  (->> #pp cs
        (reduce (fn [acc v]
                  (patch-in acc (pop v) (peek v)))
                nil)))
