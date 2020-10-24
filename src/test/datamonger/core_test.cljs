@@ -72,4 +72,44 @@
   (is (= [:a :b :c]
          (x/implode [[[:VEC 0] :a]
                      [[:VEC 2] :b]
-                     [[:VEC 4] :c]]))))
+                     [[:VEC 4] :c]])))
+  (is (= [{:a 100 :b 101}]
+         (x/implode [[[:VEC 1] :a 100]
+                     [[:VEC 1] :b 101]]))))
+
+(def complex-partial-cs
+  [[[:VEC 1] :demonyms :eng :f "Afghan"]
+   [[:VEC 1] :demonyms :eng :m "Afghan"]
+   [[:VEC 1] :demonyms :fra :f "Afghane"]
+   [[:VEC 1] :demonyms :fra :m "Afghan"]
+   [[:VEC 1] :name :common "Afghanistan"]
+   [[:VEC 1] :name :official "Islamic Republic of Afghanistan"]
+   [[:VEC 1] :currencies :AFN :name "Afghan afghani"]
+   [[:VEC 1]
+    :translations
+    :ita
+    :official
+    "Repubblica islamica dell'Afghanistan"]
+   [[:VEC 1] :translations :ita :common "Afghanistan"]
+   [[:VEC 1]
+    :translations
+    :fra
+    :official
+    "République islamique d'Afghanistan"]
+   [[:VEC 1] :translations :fra :common "Afghanistan"]
+   [[:VEC 1]
+    :translations
+    :deu
+    :official
+    "Islamische Republik Afghanistan"]
+   [[:VEC 1] :translations :deu :common "Afghanistan"]
+   [[:VEC 1]
+    :translations
+    :nld
+    :official
+    "Islamitische Republiek Afghanistan"]
+   [[:VEC 1] :translations :nld :common "Afghanistan"]])
+
+#_(deftest t-complex-partial
+    (is (= :???
+           (x/implode complex-partial-cs))))

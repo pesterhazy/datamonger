@@ -28,7 +28,7 @@
 
 (defn assoc-vec [ve idx v]
   (assert (vector? ve))
-  (let [{:keys [last-seen cur]} (meta ve)
+  (let [{:keys [last-seen cur mapping]} (meta ve)
         new-idx (cond
                   (and (some? last-seen) (< idx last-seen))
                   (throw (ex-info "Increasing idx expected" {:idx idx
@@ -41,7 +41,8 @@
                   (inc cur))]
     (-> (assoc ve new-idx v)
         (with-meta {:last-seen idx
-                    :cur new-idx}))))
+                    :cur new-idx
+                    :mapping (assoc mapping idx new-idx)}))))
 
 (defn patch [m k v]
   ;; FIXME: avoid collision
@@ -50,10 +51,15 @@
     (assoc m k v)))
 
 (defn patch-in
-  [m [k & ks] v]
+  [m [k & ks :as xxx] v]
   (if ks
     (if (and (vector? k) (= 2 (count k)) (= :VEC (first k)))
-      (patch m k (patch-in (get m (second k)) ks v))
+      (let [{:keys [mapping]} (meta m)]
+        (patch m k (patch-in (if (get mapping (second k))
+                               (get m (get mapping (second k)))
+                               nil)
+                             ks
+                             v)))
       (patch m k (patch-in (get m k) ks v)))
     (patch m k v)))
 
@@ -195,7 +201,7 @@
                        (str/join "&"))))))
 
 (defn select-ui [{:keys [set-opts]}]
-  (->> ["/widget.json" "/countries.json"]
+  (->> ["/widget.json" "/countries.json" "/package.json"]
        (map (fn [fname]
               [:div
                [:a.click
