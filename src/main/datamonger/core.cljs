@@ -85,7 +85,7 @@
     (->> v
          explode
          (filter (fn [c]
-                   (str/includes? (pr-str c) s)))
+                   (str/includes? (pr-str c) (or s ""))))
          implode)
     (catch :default e
       (js/console.error e)
