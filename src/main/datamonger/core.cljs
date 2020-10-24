@@ -54,8 +54,12 @@
       (js/console.error e)
       {:error e})))
 
-(defn transform-flat [code v]
-  nil)
+(defn transform-flat [s v]
+  (->> v
+       explode
+       (filter (fn [c]
+                 (str/includes? (pr-str c) s)))
+       implode))
 
 (defn transform-ui [opts co transform-fn v]
   (let [!el (atom nil)
@@ -102,7 +106,7 @@
 
 (defn view-ui [opts mode v]
   (let [co (or (the-modes mode) (throw "Unknown mode"))]
-    [transform-ui opts co transform-sci v]))
+    [transform-ui opts co transform-flat v]))
 
 (defn menu-ui [{:keys [opts set-opts]} v]
   (let [mode (or (some-> opts :params :mode keyword)
