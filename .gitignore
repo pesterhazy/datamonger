@@ -21,3 +21,4 @@ pom.xml.asc
 .lsp/sqlite.1.db
 public/examples
 test-public
+.rebel_readline_history

@@ -13,12 +13,26 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defn- explode-step [path v]
+  (cond
+    (map? v)
+    (->> v
+         (mapcat (fn [[mk mv]]
+                   (explode-step (conj path mk) mv))))
+    :else
+    [(conj path v)]))
+
 (defn explode [v]
-  v)
+  (explode-step [] v))
 
 (defn implode [cs]
   cs)
 
-(deftest implode-explode
+(deftest t-explode
   (let [v {:foo {:bar 1}}]
-    (is (= v (-> v explode implode)))))
+    (is (= [[:foo :bar 1]]
+           (-> v explode implode)))))
+
+#_(deftest implode-explode
+    (let [v {:foo {:bar 1}}]
+      (is (= v (-> v explode implode)))))
