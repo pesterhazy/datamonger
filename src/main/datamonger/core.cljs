@@ -110,7 +110,7 @@
                        (str/join "&"))))))
 
 (defn select-ui [{:keys [set-opts]}]
-  (->> ["widget.json" "countries.json"]
+  (->> ["/widget.json" "/countries.json"]
        (map (fn [fname]
               [:div
                [:a.click
