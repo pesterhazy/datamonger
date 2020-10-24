@@ -61,9 +61,9 @@
                  (str/includes? (pr-str c) s)))
        implode))
 
-(defn transform-ui [opts co transform-fn v]
+(defn transform-ui [opts co transform transform-fn v]
   (let [!el (atom nil)
-        ls-key (str "filter-"(-> opts :pathname))
+        ls-key (str (name transform) ":"(-> opts :pathname))
         [code set-code] (react/useState (js/localStorage.getItem ls-key))
         submit (fn [s]
                  (set-code s))]
@@ -110,7 +110,8 @@
 
 (defn view-ui [opts mode transform v]
   (let [co (or (the-modes mode) (throw "Unknown mode"))]
-    [transform-ui opts co (the-transforms transform) v]))
+    ^{:key (name transform)}
+    [transform-ui opts co transform (the-transforms transform) v]))
 
 (defn menu-ui [{:keys [opts set-opts]} v]
   (let [mode (or (some-> opts :params :mode keyword)
