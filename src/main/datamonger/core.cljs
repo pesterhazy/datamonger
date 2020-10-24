@@ -215,7 +215,9 @@
                        (str/join "&"))))))
 
 (defn select-ui [{:keys [set-opts]}]
-  (->> ["/widget.json" "/countries.json" "/package.json"]
+  (->> ["/examples/json/widget.json"
+        "/examples/json/countries.json"
+        "/examples/json/package.json"]
        (map (fn [fname]
               [:div
                [:a.click
