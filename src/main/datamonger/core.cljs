@@ -18,6 +18,9 @@
       (js/console.error e)
       {:error e})))
 
+(defn transform-flat [code v]
+  nil)
+
 (defn transform-ui [opts co transform-fn v]
   (let [!el (atom nil)
         ls-key (str "filter-"(-> opts :pathname))
