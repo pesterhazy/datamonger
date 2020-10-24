@@ -190,9 +190,14 @@
                       (throw "Could not fetch"))
                     r))
            (.then (fn [r]
-                    (.json r)))
-           (.then (fn [r]
-                    (js->clj r :keywordize-keys true))))
+                    (case kind
+                      "json"
+                      (-> (.json r)
+                          (.then (fn [r]
+                                   (js->clj r :keywordize-keys true))))
+                      "edn"
+                      (-> (.text r)
+                          (.then (fn [r] (reader/read-string r))))))))
        nil))))
 
 (defn url->opts [url]
@@ -217,7 +222,8 @@
 (defn select-ui [{:keys [set-opts]}]
   (->> ["/examples/json/widget.json"
         "/examples/json/countries.json"
-        "/examples/json/package.json"]
+        "/examples/json/package.json"
+        "/examples/edn/shadow-cljs.edn"]
        (map (fn [fname]
               [:div
                [:a.click
