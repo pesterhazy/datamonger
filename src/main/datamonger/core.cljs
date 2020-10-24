@@ -30,7 +30,7 @@
   (assert (vector? ve))
   (let [{:keys [last-seen cur]} (meta ve)
         new-idx (cond
-                  (< idx last-seen)
+                  (and (some? last-seen) (< idx last-seen))
                   (throw (ex-info "Increasing idx expected" {:idx idx
                                                              :last-seen last-seen}))
                   (not cur)
