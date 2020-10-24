@@ -28,7 +28,7 @@
 
 (defn assoc-vec [ve idx v]
   (assert (vector? ve))
-
+  ;; FIXME: better mapping
   (assoc (if (> idx (count ve))
            (into ve (repeat (- idx (count ve)) nil))
            ve)
