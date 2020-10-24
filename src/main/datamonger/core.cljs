@@ -27,7 +27,9 @@
   (explode-step [] v))
 
 (defn assoc-vec [ve idx v]
-  (conj ve v))
+  (assert (vector? ve))
+  (assert (<= idx (count ve)) (pr-str ["idx out of bounds:" idx (count ve)]))
+  (assoc ve idx v))
 
 (defn patch [m k v]
   ;; FIXME: avoid collision
