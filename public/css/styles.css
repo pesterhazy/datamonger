@@ -43,6 +43,10 @@ body {
 .pprint {
 }
 
+.mb {
+    margin-bottom: 20px;
+}
+
 .comment {
     margin-top: 10px;
 }

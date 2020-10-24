@@ -121,8 +121,9 @@
                                                 (gobj/get e "metaKey")))
                                    (submit (-> e .-target .-value))
                                    (.preventDefault e)))}]
-      [:a.click {:on-click (fn [] (submit (-> @!el .-value)))}
-       "apply"]]
+      [:div.mb
+       [:a.click {:on-click (fn [] (submit (-> @!el .-value)))}
+        "apply"]]]
      (when-let [comment (-> v* meta :comment)]
        [:div.comment comment])
      [co v*]]))
