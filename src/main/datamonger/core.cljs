@@ -17,18 +17,22 @@
                    (explode-step (conj path mk) mv))))
     (vector? v)
     (->> v
-         (mapcat (fn [vv]
-                   (explode-step (conj path :CONJV) vv))))
+         (map vector (range))
+         (mapcat (fn [[idx vv]]
+                   (explode-step (conj path [:VEC idx]) vv))))
     :else
     [(conj path v)]))
 
 (defn explode [v]
   (explode-step [] v))
 
+(defn assoc-vec [ve idx v]
+  (conj ve v))
+
 (defn patch [m k v]
   ;; FIXME: avoid collision
-  (if (= :CONJV k)
-    (conj (or m []) v)
+  (if (and (vector? k) (= 2 (count k)) (= :VEC (first k)))
+    (assoc-vec (or m []) (second k) v)
     (assoc m k v)))
 
 (defn patch-in
