@@ -2,6 +2,19 @@
 
 set -euo pipefail
 
+arg="${1-}"
+
+if [[ "$arg" == "--json" ]]; then
+    kind=json
+elif [[ "$arg" == "--edn" ]]; then
+    kind=edn
+else
+    echo First argument must be --json or --edn
+    exit 1
+fi
+
+shift
+
 s=$(cat "$@" | urlencode)
 
-open "http://localhost:8080/from-hash/json#data=${s}"
+open "http://localhost:8080/from-hash/${kind}#data=${s}"

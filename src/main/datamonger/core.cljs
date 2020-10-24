@@ -188,10 +188,15 @@
 
 (defn load+ [path]
   (js/Promise.resolve
-   (if-let [id (some-> (re-matches #"^/blob/json/(.*)$" path) second)]
-     (-> (js/localStorage.getItem id)
-         js/JSON.parse
-         (js->clj :keywordize-keys true))
+   (if-let [[_ kind id] (some-> (re-matches #"^/blob/(.*)/(.*)$" path))]
+     (case kind
+       "json"
+       (-> (js/localStorage.getItem id)
+           js/JSON.parse
+           (js->clj :keywordize-keys true))
+       "edn"
+       (-> (js/localStorage.getItem id)
+           reader/read-string))
      (if-let [[_ kind] (re-matches #"^/examples/(.*)/.*$" path)]
        (-> (js/fetch (str "/static" path))
            (.then (fn [r]
