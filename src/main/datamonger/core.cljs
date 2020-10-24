@@ -28,8 +28,12 @@
 
 (defn assoc-vec [ve idx v]
   (assert (vector? ve))
-  (assert (<= idx (count ve)) (pr-str ["idx out of bounds:" idx (count ve)]))
-  (assoc ve idx v))
+
+  (assoc (if (> idx (count ve))
+           (into ve (repeat (- idx (count ve)) nil))
+           ve)
+         idx
+         v))
 
 (defn patch [m k v]
   ;; FIXME: avoid collision

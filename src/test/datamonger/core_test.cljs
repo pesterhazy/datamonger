@@ -67,3 +67,7 @@
 
 (deftest implode-explode-complex
   (is (= complex-v (x/implode (x/explode complex-v))) "vector"))
+
+(deftest t-partial
+  (is (= [nil :b]
+         (x/implode [[[:VEC 1] :b]]))))
