@@ -228,15 +228,6 @@
       [menu-ui ctx v]
       [:div])))
 
-(defn json-ui []
-  (let [params (js/URLSearchParams. (-> js/location.hash
-                                        (str/replace #"^#" "")))
-        data (.get params "data")
-        id (random-uuid)]
-    (js/localStorage.setItem (str id) data)
-    (set! (.-hash js/location) "")
-    (set! (.-pathname js/location) (str "/blob/" id))))
-
 (defn main-ui []
   ;; FIXME: prefix with /app
   (let [[opts set-opts] (react/useState (url->opts (str js/location.pathname js/location.search)))
@@ -247,12 +238,17 @@
                        js/undefined)
                      #js[new-url])
     (cond
-      ;; FIXME: hacky
-      (= "/json" (:pathname opts))
-      [json-ui]
-
       (and (seq (:pathname opts))
            (not= "/" (:pathname opts)))
       [load-ui ctx]
       :else
       [select-ui ctx])))
+
+(defn init []
+  (when (= "/json" js/location.pathname)
+    (let [params (js/URLSearchParams. (-> js/location.hash
+                                          (str/replace #"^#" "")))
+          data (.get params "data")
+          id (random-uuid)]
+      (js/localStorage.setItem (str id) data)
+      (js/history.pushState {} nil (str js/location.origin (str "/blob/" id))))))
