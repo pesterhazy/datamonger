@@ -9,7 +9,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn transform [code v]
+(defn transform-sci [code v]
   (try
     (if (str/blank? code)
       v
@@ -18,7 +18,7 @@
       (js/console.error e)
       {:error e})))
 
-(defn transform-ui [opts co v]
+(defn transform-ui [opts co transform-fn v]
   (let [!el (atom nil)
         ls-key (str "filter-"(-> opts :pathname))
         [code set-code] (react/useState (js/localStorage.getItem ls-key))
@@ -39,7 +39,7 @@
                                    (.preventDefault e)))}]
       [:a.click {:on-click (fn [] (submit (-> @!el .-value)))}
        "apply"]]
-     [co (transform code v)]]))
+     [co (transform-fn code v)]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -62,7 +62,7 @@
 
 (defn view-ui [opts mode v]
   (let [co (or (the-modes mode) (throw "Unknown mode"))]
-    [transform-ui opts co v]))
+    [transform-ui opts co transform-sci v]))
 
 (defn menu-ui [{:keys [opts set-opts]} v]
   (let [mode (or (some-> opts :params :mode keyword)
