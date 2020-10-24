@@ -135,8 +135,8 @@
    :interactive interactive-ui})
 
 (def the-transforms
-  {:sci transform-sci
-   :flat transform-flat})
+  {:flat transform-flat
+   :sci transform-sci})
 
 (defn view-ui [opts mode transform v]
   (let [co (or (the-modes mode) (throw "Unknown mode"))]
