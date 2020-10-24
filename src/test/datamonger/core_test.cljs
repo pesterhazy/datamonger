@@ -19,6 +19,11 @@
     (->> v
          (mapcat (fn [[mk mv]]
                    (explode-step (conj path mk) mv))))
+    (vector? v)
+    (->> v
+         (map vector (range))
+         (mapcat (fn [[i vv]]
+                   (explode-step (conj path i) vv))))
     :else
     [(conj path v)]))
 
@@ -29,9 +34,16 @@
   cs)
 
 (deftest t-explode
-  (let [v {:foo {:bar 1}}]
-    (is (= [[:foo :bar 1]]
-           (-> v explode implode)))))
+  (let [v {:foo {:bar 1
+                 :baz 2}
+           :quux 3}]
+    (is (= [[:foo :bar 1]
+            [:foo :baz 2]
+            [:quux 3]]
+           (-> v explode))))
+  (let [v [:a :b]]
+    (is (= [[0 :a] [1 :b]]
+           (-> v explode)))))
 
 #_(deftest implode-explode
     (let [v {:foo {:bar 1}}]
