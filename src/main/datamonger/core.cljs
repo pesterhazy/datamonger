@@ -28,12 +28,20 @@
 
 (defn assoc-vec [ve idx v]
   (assert (vector? ve))
-  ;; FIXME: better mapping
-  (assoc (if (> idx (count ve))
-           (into ve (repeat (- idx (count ve)) nil))
-           ve)
-         idx
-         v))
+  (let [{:keys [last-seen cur]} (meta ve)
+        new-idx (cond
+                  (< idx last-seen)
+                  (throw (ex-info "Increasing idx expected" {:idx idx
+                                                             :last-seen last-seen}))
+                  (not cur)
+                  0
+                  (= idx last-seen)
+                  cur
+                  :else
+                  (inc cur))]
+    (-> (assoc ve new-idx v)
+        (with-meta {:last-seen idx
+                    :cur new-idx}))))
 
 (defn patch [m k v]
   ;; FIXME: avoid collision
