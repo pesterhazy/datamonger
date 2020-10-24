@@ -9,6 +9,42 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defn- explode-step [path v]
+  (cond
+    (map? v)
+    (->> v
+         (mapcat (fn [[mk mv]]
+                   (explode-step (conj path mk) mv))))
+    (vector? v)
+    (->> v
+         (mapcat (fn [vv]
+                   (explode-step (conj path :CONJV) vv))))
+    :else
+    [(conj path v)]))
+
+(defn explode [v]
+  (explode-step [] v))
+
+(defn patch [m k v]
+  ;; FIXME: avoid collision
+  (if (= :CONJV k)
+    (conj (or m []) v)
+    (assoc m k v)))
+
+(defn patch-in
+  [m [k & ks] v]
+  (if ks
+    (patch m k (patch-in (get m k) ks v))
+    (patch m k v)))
+
+(defn implode [cs]
+  (->> cs
+       (reduce (fn [acc v]
+                 (patch-in acc (pop v) (peek v)))
+               nil)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defn transform-sci [code v]
   (try
     (if (str/blank? code)
