@@ -161,23 +161,25 @@
        (into [:ul.menu])))
 
 (defn menu-ui [{:keys [opts set-opts]} v]
-  (let [mode (or (some-> opts :params :mode keyword)
-                 (first (keys the-modes)))
-        transform (or (some-> opts :params :transform keyword)
+  (let [transform (or (some-> opts :params :transform keyword)
                       (first (keys the-transforms)))]
     [:div
      [:div.back [:a.click {:on-click (fn [] (set-opts {}))} "<< back"]]
-     [pick-ui {:xs the-modes
-               :x mode
-               :on-click (fn [k]
-                           (set-opts (fn [opts]
-                                       (assoc-in opts [:params :mode] (name k)))))}]
      [pick-ui {:xs the-transforms
                :x transform
                :on-click (fn [k]
                            (set-opts (fn [opts]
                                        (assoc-in opts [:params :transform] (name k)))))}]
-     (let [co (or (the-modes mode) (throw "Unknown mode"))]
+     (let [co (fn [v]
+                (let [mode (or (some-> opts :params :mode keyword)
+                               (first (keys the-modes)))]
+                  [:div
+                   [pick-ui {:xs the-modes
+                             :x mode
+                             :on-click (fn [k]
+                                         (set-opts (fn [opts]
+                                                     (assoc-in opts [:params :mode] (name k)))))}]
+                   [(or (the-modes mode) (throw "Unknown mode")) v]]))]
        ^{:key (name transform)}
        [transform-ui opts co transform (the-transforms transform) v])]))
 
