@@ -138,7 +138,6 @@
         ctx {:opts opts :set-opts set-opts}
         new-url (opts->url opts)]
     (react/useEffect (fn []
-                       (prn [:new-url new-url])
                        (js/history.pushState {} nil (str js/location.origin new-url))
                        js/undefined)
                      #js[new-url])
