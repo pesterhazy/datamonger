@@ -150,11 +150,6 @@
   {:flat transform-flat
    :clj transform-clj})
 
-(defn view-ui [opts mode transform v]
-  (let [co (or (the-modes mode) (throw "Unknown mode"))]
-    ^{:key (name transform)}
-    [transform-ui opts co transform (the-transforms transform) v]))
-
 (defn pick-ui [{:keys [xs x on-click]}]
   (->> (keys xs)
        (map (fn [k]
@@ -182,7 +177,9 @@
                :on-click (fn [k]
                            (set-opts (fn [opts]
                                        (assoc-in opts [:params :transform] (name k)))))}]
-     [view-ui opts mode transform v]]))
+     (let [co (or (the-modes mode) (throw "Unknown mode"))]
+       ^{:key (name transform)}
+       [transform-ui opts co transform (the-transforms transform) v])]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
