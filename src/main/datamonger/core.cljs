@@ -155,6 +155,16 @@
     ^{:key (name transform)}
     [transform-ui opts co transform (the-transforms transform) v]))
 
+(defn pick-ui [{:keys [xs x on-click]}]
+  (->> (keys xs)
+       (map (fn [k]
+              [:li.menu-item
+               [:a.click
+                {:class (when (= k x) "selected")
+                 :on-click #(on-click k)}
+                (name k)]]))
+       (into [:ul.menu])))
+
 (defn menu-ui [{:keys [opts set-opts]} v]
   (let [mode (or (some-> opts :params :mode keyword)
                  (first (keys the-modes)))
@@ -162,26 +172,16 @@
                       (first (keys the-transforms)))]
     [:div
      [:div.back [:a.click {:on-click (fn [] (set-opts {}))} "<< back"]]
-     (->> (keys the-modes)
-          (map (fn [k]
-                 [:li.menu-item
-                  [:a.click
-                   {:class (when (= k mode) "selected")
-                    :on-click
-                    (fn [] (set-opts (fn [opts]
-                                       (assoc-in opts [:params :mode] (name k)))))}
-                   (name k)]]))
-          (into [:ul.menu]))
-     (->> (keys the-transforms)
-          (map (fn [k]
-                 [:li.menu-item
-                  [:a.click
-                   {:class (when (= k transform) "selected")
-                    :on-click
-                    (fn [] (set-opts (fn [opts]
-                                       (assoc-in opts [:params :transform] (name k)))))}
-                   (name k)]]))
-          (into [:ul.menu]))
+     [pick-ui {:xs the-modes
+               :x mode
+               :on-click (fn [k]
+                           (set-opts (fn [opts]
+                                       (assoc-in opts [:params :mode] (name k)))))}]
+     [pick-ui {:xs the-transforms
+               :x transform
+               :on-click (fn [k]
+                           (set-opts (fn [opts]
+                                       (assoc-in opts [:params :transform] (name k)))))}]
      [view-ui opts mode transform v]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
