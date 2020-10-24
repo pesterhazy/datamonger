@@ -175,11 +175,16 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn load+ [fname]
-  (-> (js/fetch (str "/examples/" fname))
-      (.then (fn [r]
-               (.json r)))
-      (.then (fn [r]
-               (js->clj r :keywordize-keys true)))))
+  (js/Promise.resolve
+   (if-let [id (some-> (re-matches #"^/blob/(.*)$" fname) second)]
+     (-> (js/localStorage.getItem id)
+         js/JSON.parse
+         (js->clj :keywordize-keys true))
+     (-> (js/fetch (str "/examples/" fname))
+         (.then (fn [r]
+                  (.json r)))
+         (.then (fn [r]
+                  (js->clj r :keywordize-keys true)))))))
 
 (defn url->opts [url]
   (let [[pathname search] (str/split url #"\?")
