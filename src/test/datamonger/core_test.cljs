@@ -21,9 +21,8 @@
                    (explode-step (conj path mk) mv))))
     (vector? v)
     (->> v
-         (map vector (range))
-         (mapcat (fn [[i vv]]
-                   (explode-step (conj path i) vv))))
+         (mapcat (fn [vv]
+                   (explode-step (conj path :CONJV) vv))))
     :else
     [(conj path v)]))
 
@@ -44,10 +43,8 @@
 
 (defn implode [cs]
   (->> cs
-       (reduce (fn [acc c]
-                 (assert (vector? c))
-                 nil
-                 #_(apply-c acc))
+       (reduce (fn [acc v]
+                 (patch-in acc (pop v) (peek v)))
                nil)))
 
 (deftest t-explode
@@ -59,7 +56,7 @@
             [:quux 3]]
            (-> v explode))))
   (let [v [:a :b]]
-    (is (= [[0 :a] [1 :b]]
+    (is (= [[:CONJV :a] [:CONJV :b]]
            (-> v explode)))))
 
 (deftest t-patch-in
@@ -70,6 +67,6 @@
     (is (= {:foo [100]}
            (patch-in nil (pop c) (peek c))))))
 
-#_(deftest implode-explode
-    (let [v {:foo {:bar 1}}]
-      (is (= v (-> v explode implode)))))
+(deftest implode-explode
+  (let [v {:foo {:bar [:a :b]}}]
+    (is (= v (implode (explode v))))))
