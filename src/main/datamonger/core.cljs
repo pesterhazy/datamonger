@@ -63,11 +63,15 @@
       {:error e})))
 
 (defn transform-flat [s v]
-  (->> v
-       explode
-       (filter (fn [c]
-                 (str/includes? (pr-str c) s)))
-       implode))
+  (try
+    (->> v
+         explode
+         (filter (fn [c]
+                   (str/includes? (pr-str c) s)))
+         implode)
+    (catch :default e
+      (js/console.error e)
+      {:error e})))
 
 (defn transform-ui [opts co transform transform-fn v]
   (let [!el (atom nil)
