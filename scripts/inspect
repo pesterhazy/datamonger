@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+s=$(cat "$@" | urlencode)
+
+open "http://localhost:8080/json#data=${s}"
