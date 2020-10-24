@@ -85,11 +85,14 @@
 
 (defn transform-flat [s v]
   (try
-    (->> v
-         explode
-         (filter (fn [c]
-                   (str/includes? (pr-str c) (or s ""))))
-         implode)
+    (if (str/blank? s)
+      v
+      (let [old (explode v)
+            new (filter (fn [c]
+                          (str/includes? (pr-str c) (or s "")))
+                        old)]
+        (with-meta (implode new)
+          {:comment (str "matching " (count new) "/" (count old))})))
     (catch :default e
       (js/console.error e)
       {:error e})))
@@ -99,7 +102,8 @@
         ls-key (str (name transform) ":"(-> opts :pathname))
         [code set-code] (react/useState (js/localStorage.getItem ls-key))
         submit (fn [s]
-                 (set-code s))]
+                 (set-code s))
+        v* (transform-fn code v)]
     [:div
      [:div {:style {:width 600}}
       [:textarea {:ref (fn [el] (reset! !el el))
@@ -116,7 +120,9 @@
                                    (.preventDefault e)))}]
       [:a.click {:on-click (fn [] (submit (-> @!el .-value)))}
        "apply"]]
-     [co (transform-fn code v)]]))
+     (when-let [comment (-> v* meta :comment)]
+       [:div.comment comment])
+     [co v*]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
