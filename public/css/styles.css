@@ -46,3 +46,7 @@ body {
 .comment {
     margin-top: 10px;
 }
+
+.dirty {
+    background-color: #fce3ec;
+}

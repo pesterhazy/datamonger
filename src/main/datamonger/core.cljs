@@ -100,18 +100,21 @@
 (defn transform-ui [opts co transform transform-fn v]
   (let [!el (atom nil)
         ls-key (str (name transform) ":"(-> opts :pathname))
+        [dirty set-dirty] (react/useState false)
         [code set-code] (react/useState (js/localStorage.getItem ls-key))
         submit (fn [s]
+                 (set-dirty false)
+                 (js/localStorage.setItem ls-key s)
                  (set-code s))
         v* (transform-fn code v)]
     [:div
      [:div {:style {:width 600}}
       [:textarea {:ref (fn [el] (reset! !el el))
+                  :class (when dirty "dirty")
                   :style {:width 600 :height 200 :padding 6}
                   :default-value (or code "")
                   :on-change (fn [^js/Event e]
-                               (js/localStorage.setItem ls-key
-                                                        (-> e .-target .-value)))
+                               (set-dirty true))
                   :on-key-down (fn [^js/Event e]
                                  (when (and (= "Enter" (gobj/get e "key"))
                                             (or (gobj/get e "ctrlKey")
