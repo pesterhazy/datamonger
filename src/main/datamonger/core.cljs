@@ -2,10 +2,13 @@
   (:require [clojure.core]
             [clojure.pprint]
             [clojure.string :as str]
+            [cljs.reader :as reader]
             [datafrisk.core :as d]
             [goog.object :as gobj]
             [sci.core :as sci]
             ["react" :as react]))
+
+;; FIXME: back button is broken
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -71,7 +74,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn transform-sci [code v]
+(defn transform-clj [code v]
   (try
     (if (str/blank? code)
       v
@@ -119,7 +122,7 @@
 
 (defn preview-ui [v]
   (binding [clojure.core/*print-length* 3]
-    [:div (pr-str v)]))
+    [:pre.pprint (pr-str v)]))
 
 (defn pprint-ui [v]
   [:pre.pprint (with-out-str (clojure.pprint/pprint v))])
@@ -136,7 +139,7 @@
 
 (def the-transforms
   {:flat transform-flat
-   :sci transform-sci})
+   :clj transform-clj})
 
 (defn view-ui [opts mode transform v]
   (let [co (or (the-modes mode) (throw "Unknown mode"))]
@@ -174,17 +177,23 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn load+ [fname]
+(defn load+ [path]
   (js/Promise.resolve
-   (if-let [id (some-> (re-matches #"^/blob/(.*)$" fname) second)]
+   (if-let [id (some-> (re-matches #"^/blob/(.*)$" path) second)]
      (-> (js/localStorage.getItem id)
          js/JSON.parse
          (js->clj :keywordize-keys true))
-     (-> (js/fetch (str "/examples/" fname))
-         (.then (fn [r]
-                  (.json r)))
-         (.then (fn [r]
-                  (js->clj r :keywordize-keys true)))))))
+     (if-let [[_ kind] (re-matches #"^/examples/(.*)/.*$" path)]
+       (-> (js/fetch (str "/static" path))
+           (.then (fn [r]
+                    (when-not (.-ok r)
+                      (throw "Could not fetch"))
+                    r))
+           (.then (fn [r]
+                    (.json r)))
+           (.then (fn [r]
+                    (js->clj r :keywordize-keys true))))
+       nil))))
 
 (defn url->opts [url]
   (let [[pathname search] (str/split url #"\?")
