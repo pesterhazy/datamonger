@@ -170,9 +170,8 @@
      [pick-ui {:xs the-transforms
                :x transform
                :on-click (fn [k]
-                           ;; FIXME
-                           #_(set-rinf (fn [rinf]
-                                         (assoc-in rinf [:params :transform] (name k)))))}]
+                           (navigate-to (fn [rinf]
+                                          (assoc-in rinf [:params :transform] (name k)))))}]
      (let [co (fn [v]
                 (let [mode (or (some-> rinf :params :mode keyword)
                                (first (keys the-modes)))]
@@ -180,9 +179,8 @@
                    [pick-ui {:xs the-modes
                              :x mode
                              :on-click (fn [k]
-                                         ;; FIXME
-                                         #_(set-rinf (fn [rinf]
-                                                       (assoc-in rinf [:params :mode] (name k)))))}]
+                                         (navigate-to (fn [rinf]
+                                                        (assoc-in rinf [:params :mode] (name k)))))}]
                    [(or (the-modes mode) (throw "Unknown mode")) v]]))]
        ^{:key (name transform)}
        [transform-ui rinf co transform (the-transforms transform) v])]))
@@ -294,12 +292,18 @@
   (let [[rinf set-rinf] (react/useState (get-rinf))
         ctx {:rinf rinf
              :set-rinf set-rinf ;; FIXME: remove
-             :navigate-to (fn [opts]
-                            (set-rinf (fn [rinf]
-                                        (-> rinf
-                                            (assoc :route (:route opts))
-                                            (assoc :pathname
-                                                   (route->pathname (:route opts)))))))}
+             :navigate-to (fn [arg]
+                            (if (fn? arg)
+                              (set-rinf (fn [rinf]
+                                          (let [new-rinf (arg rinf)]
+                                            (assoc new-rinf
+                                                   :pathname
+                                                   (route->pathname (:route new-rinf))))))
+                              (set-rinf (fn [rinf]
+                                          (-> rinf
+                                              (assoc :route (:route arg))
+                                              (assoc :pathname
+                                                     (route->pathname (:route arg))))))))}
         new-url (rinf->url rinf)
         handle-change (fn [] (set-rinf (get-rinf)))]
     (react/useEffect (fn []
@@ -312,7 +316,7 @@
                          (js/window.removeEventListener "popstate" handle-change)))
                      #js[handle-change])
 
-    (case (-> #pp rinf :route :name)
+    (case (-> rinf :route :name)
       :root
       [select-ui ctx]
       :example
