@@ -327,7 +327,7 @@
 
 ;; FIXME: add /app
 (defn init []
-  (when-let [[_ kind] (re-matches #"^/from-hash/(json|edn)$" js/location.pathname)]
+  (when-let [[_ kind] (re-matches #"^/app/from-hash/(json|edn)$" js/location.pathname)]
     (let [params (js/URLSearchParams. (-> js/location.hash
                                           (str/replace #"^#" "")))
           data (.get params "data")

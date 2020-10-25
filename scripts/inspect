@@ -17,4 +17,4 @@ shift
 
 s=$(cat "$@" | urlencode)
 
-open "http://localhost:8080/from-hash/${kind}#data=${s}"
+open "http://localhost:8080/app/from-hash/${kind}#data=${s}"
