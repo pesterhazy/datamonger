@@ -291,11 +291,19 @@
                     (update-v result))))
        js/undefined)
      #js[])
-    (if v
-      [menu-ui ctx v]
-      [:div])))
+    (when v
+      [menu-ui ctx v])))
 
-(defn main-ui []
+(defn route-ui [ctx]
+  (case (-> ctx :rinf :route :name)
+    :root
+    [select-ui ctx]
+    :example
+    [load-ui ctx]
+    nil
+    [:div "Route not found"]))
+
+(defn router-ui []
   ;; FIXME: prefix with /app
   (let [[rinf set-rinf] (react/useState (get-rinf))
         ctx {:rinf rinf
@@ -311,14 +319,7 @@
                        (fn []
                          (js/window.removeEventListener "popstate" handle-change)))
                      #js[handle-change])
-
-    (case (-> rinf :route :name)
-      :root
-      [select-ui ctx]
-      :example
-      [load-ui ctx]
-      nil
-      [:div "Route not found"])))
+    [route-ui ctx]))
 
 (defn init []
   (when-let [[_ kind] (re-matches #"^/from-hash/(json|edn)$" js/location.pathname)]

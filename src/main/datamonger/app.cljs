@@ -7,6 +7,6 @@
 
 (defn ^:dev/after-load init []
   (core/init)
-  (rd/render [core/main-ui]
+  (rd/render [core/router-ui]
              (js/document.getElementById "app")
              functional-compiler))
