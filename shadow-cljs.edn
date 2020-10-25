@@ -18,6 +18,11 @@
         :asset-path "/js"
         :modules {:main {:entries [datamonger.app]
                          :init-fn datamonger.app/init}}}
+  :release {:target :browser
+            :output-dir "dist/js"
+            :asset-path "/js"
+            :modules {:main {:entries [datamonger.app]
+                             :init-fn datamonger.app/init}}}
   :test {:target    :browser-test
          :test-dir  "test-public"
          :ns-regexp "-test$"

@@ -9,6 +9,7 @@
             ["react" :as react]))
 
 ;; FIXME: back button is broken
+;; TODO: table view with https://github.com/adazzle/react-data-grid
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
