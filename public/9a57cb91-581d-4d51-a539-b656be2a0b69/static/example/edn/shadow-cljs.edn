@@ -1,0 +1,25 @@
+;; shadow-cljs configuration
+{:source-paths
+ ["src/dev"
+  "src/main"
+  "src/test"]
+
+ :dependencies
+ [[reagent "1.0.0-alpha2"]
+  [data-frisk-reagent "0.4.5"]
+  [borkdude/sci "0.1.1-alpha.7"]]
+
+ :dev-http
+ {8080 "public"}
+
+ :builds
+ {:app {:target :browser
+        :output-dir "public/js"
+        :asset-path "/js"
+        :modules {:main {:entries [datamonger.app]
+                         :init-fn datamonger.app/init}}}
+  :test {:target    :browser-test
+         :test-dir  "test-public"
+         :ns-regexp "-test$"
+         :devtools  {:http-port 8021
+                     :http-root "test-public"}}}}}
