@@ -187,33 +187,33 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn load+ [path]
+(defn load-example+ [{:keys [kind fname]}]
   (js/Promise.resolve
-   (if-let [[_ kind id] (some-> (re-matches #"^/blob/(.*)/(.*)$" path))]
-     (case kind
-       "json"
-       (-> (js/localStorage.getItem id)
-           js/JSON.parse
-           (js->clj :keywordize-keys true))
-       "edn"
-       (-> (js/localStorage.getItem id)
-           reader/read-string))
-     (if-let [[_ kind] (re-matches #"^/examples/(.*)/.*$" path)]
-       (-> (js/fetch (str "/static" path))
-           (.then (fn [r]
-                    (when-not (.-ok r)
-                      (throw "Could not fetch"))
-                    r))
-           (.then (fn [r]
-                    (case kind
-                      "json"
-                      (-> (.json r)
-                          (.then (fn [r]
-                                   (js->clj r :keywordize-keys true))))
-                      "edn"
-                      (-> (.text r)
-                          (.then (fn [r] (reader/read-string r))))))))
-       nil))))
+   (-> (js/fetch (str "/static/example/" (name kind) "/" fname))
+       (.then (fn [r]
+                (when-not (.-ok r)
+                  (throw "Could not fetch"))
+                r))
+       (.then (fn [r]
+                (case kind
+                  "json"
+                  (-> (.json r)
+                      (.then (fn [r]
+                               (js->clj r :keywordize-keys true))))
+                  "edn"
+                  (-> (.text r)
+                      (.then (fn [r] (reader/read-string r))))))))))
+
+(defn load-blob+ [{:keys [kind id]}]
+  (js/Promise.resolve
+   (case kind
+     "json"
+     (-> (js/localStorage.getItem id)
+         js/JSON.parse
+         (js->clj :keywordize-keys true))
+     "edn"
+     (-> (js/localStorage.getItem id)
+         reader/read-string))))
 
 (defn url->rinf [url parse-fn]
   (let [[pathname search] (str/split url #"\?")
@@ -236,7 +236,7 @@
                          (str/join "&")))))))
 
 (defn pathname->route [pathname]
-  (if-let [matches (re-matches #"^/examples/(.*)/(.*)$" pathname)]
+  (if-let [matches (re-matches #"^/example/(.*)/(.*)$" pathname)]
     {:name :example
      :path-params (zipmap [:kind :fname](rest matches))}
     (if-let [matches (re-matches #"^/$" pathname)]
@@ -252,7 +252,7 @@
     :root
     "/"
     :example
-    (str "/examples/"
+    (str "/example/"
          (name (:kind path-params))
          "/"
          (:fname path-params))
@@ -282,7 +282,7 @@
                 (:fname path-params)]]))
        (into [:div])))
 
-(defn load-ui [{:keys [rinf] :as ctx}]
+(defn load-ui [{:keys [rinf] :as ctx} load+]
   (let [[v update-v] (react/useState nil)]
     (react/useEffect
      (fn []
@@ -299,7 +299,9 @@
     :root
     [select-ui ctx]
     :example
-    [load-ui ctx]
+    [load-ui ctx (fn [] (load-example+ (-> ctx :rinf :route :path-params)))]
+    :blob
+    [load-ui ctx (fn [] (load-blob+ (-> ctx :rinf :route :path-params)))]
     nil
     [:div "Route not found"]))
 
