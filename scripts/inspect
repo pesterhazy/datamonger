@@ -15,6 +15,13 @@ fi
 
 shift
 
+url=http://localhost:8080
+
+if [[ "${1-}" == "--prod" ]]; then
+    url=https://fxime.com
+    shift
+fi
+
 s=$(cat "$@" | urlencode)
 
-open "http://localhost:8080/app/from-hash/${kind}#data=${s}"
+open "$url/app/from-hash/${kind}#data=${s}"
