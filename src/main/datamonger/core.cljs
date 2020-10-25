@@ -261,21 +261,19 @@
              pathname->route))
 
 (defn select-ui [{:keys [navigate-to]}]
-  (->> ["/examples/json/widget.json"
-        "/examples/json/countries.json"
-        "/examples/json/package.json"
-        "/examples/edn/shadow-cljs.edn"
-        "/examples/edn/presentation.edn"]
-       (map (fn [fname]
+  (->> [{:kind :json :fname "widget.json"}
+        {:kind :json :fname "countries.json"}
+        {:kind :json :fname "package.json"}
+        {:kind :edn :fname "shadow-cljs.edn"}
+        {:kind :edn :fname "presentation.edn"}]
+       (map (fn [path-params]
               [:div
                [:a.click
                 {:on-click
                  (fn []
                    (navigate-to {:route {:name :example
-                                         :path-params {:kind :json
-                                                       :fname "widget.json"}}})
-                   #_(set-rinf (fn [rinf] (assoc rinf :pathname fname))))}
-                fname]]))
+                                         :path-params path-params}}))}
+                (:fname path-params)]]))
        (into [:div])))
 
 (defn load-ui [{:keys [rinf] :as ctx}]
