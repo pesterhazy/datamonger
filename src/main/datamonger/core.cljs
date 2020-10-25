@@ -189,7 +189,10 @@
 
 (defn load-example+ [{:keys [kind fname]}]
   (js/Promise.resolve
-   (-> (js/fetch (str "/static/example/" (name kind) "/" fname))
+   (-> (js/fetch (str "/9a57cb91-581d-4d51-a539-b656be2a0b69/static/example/"
+                      (name kind)
+                      "/"
+                      fname))
        (.then (fn [r]
                 (when-not (.-ok r)
                   (throw "Could not fetch"))
