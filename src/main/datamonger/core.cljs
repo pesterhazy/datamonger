@@ -234,6 +234,9 @@
                               (str (name k) "=" (str v))))
                        (str/join "&"))))))
 
+(defn initial-rinf []
+  (url->rinf (str js/location.pathname js/location.search)))
+
 (defn select-ui [{:keys [set-rinf]}]
   (->> ["/examples/json/widget.json"
         "/examples/json/countries.json"
@@ -263,9 +266,9 @@
 
 (defn main-ui []
   ;; FIXME: prefix with /app
-  (let [[rinf set-rinf] (react/useState (url->rinf (str js/location.pathname js/location.search)))
+  (let [[rinf set-rinf] (react/useState (initial-rinf))
         ctx {:rinf rinf :set-rinf set-rinf}
-        new-url (rinf->url #pp rinf)]
+        new-url (rinf->url rinf)]
     (react/useEffect (fn []
                        (js/history.pushState {} nil (str js/location.origin new-url))
                        js/undefined)
