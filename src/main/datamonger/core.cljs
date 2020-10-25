@@ -279,7 +279,7 @@
   (let [[v update-v] (react/useState nil)]
     (react/useEffect
      (fn []
-       (-> (load+ (:pathname rinf))
+       (-> (load+ (route->pathname (:route rinf)))
            (.then (fn [result]
                     (update-v result))))
        js/undefined)
@@ -292,14 +292,7 @@
   ;; FIXME: prefix with /app
   (let [[rinf set-rinf] (react/useState (get-rinf))
         ctx {:rinf rinf
-             :navigate-to (fn [arg]
-                            (set-rinf (fn [rinf]
-                                        (let [new-rinf (if (fn? arg)
-                                                         (arg rinf)
-                                                         arg)]
-                                          (assoc new-rinf
-                                                 :pathname
-                                                 (route->pathname (:route new-rinf)))))))}
+             :navigate-to set-rinf}
         new-url (rinf->url rinf route->pathname)
         handle-change (fn [] (set-rinf (get-rinf)))]
     (react/useEffect (fn []
