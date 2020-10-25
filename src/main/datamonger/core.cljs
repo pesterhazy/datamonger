@@ -99,7 +99,7 @@
 
 (defn transform-ui [rinf co transform transform-fn v]
   (let [!el (atom nil)
-        ls-key (str (name transform) ":"(-> rinf :pathname))
+        ls-key (str (name transform) ":"(-> rinf :route :path-params :fname))
         [dirty set-dirty] (react/useState false)
         [code set-code] (react/useState (js/localStorage.getItem ls-key))
         submit (fn [s]
