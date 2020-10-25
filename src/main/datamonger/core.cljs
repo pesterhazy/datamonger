@@ -242,7 +242,10 @@
     (if-let [matches (re-matches #"^/$" pathname)]
       {:name :root
        :path-params {}}
-      nil)))
+      (if-let [matches (re-matches #"^/blob/(.*)/(.*)$" pathname)]
+        {:name :blob
+         :path-params (zipmap [:kind :id] (rest matches))}
+        nil))))
 
 (defn route->pathname [{route-name :name, :keys [path-params]}]
   (case route-name
@@ -252,7 +255,12 @@
     (str "/examples/"
          (name (:kind path-params))
          "/"
-         (:fname path-params))))
+         (:fname path-params))
+    :blob
+    (str "/blob/"
+         (name (:kind path-params))
+         "/"
+         (:id path-params))))
 
 (defn get-rinf []
   (url->rinf (str js/location.pathname js/location.search)

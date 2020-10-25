@@ -3,13 +3,14 @@
             [datamonger.core :as x]))
 
 (defn roundtrip [s]
-  (is (= s (-> s (x/url->rinf) (x/rinf->url)))))
+  (is (= s (-> s
+               (x/url->rinf x/pathname->route)
+               (x/rinf->url x/route->pathname)))))
 
 (deftest t1
   (roundtrip "/")
-  (roundtrip "/foo")
-  (roundtrip "/foo?a=b&c=d")
-  (is (= {:pathname "foo", :params {:a "b", :c "d"}} (x/url->rinf "foo?a=b&c=d"))))
+  (roundtrip "/examples/json/widget.json")
+  (roundtrip "/blob/json/20d26b12-3cfb-48f1-bacc-b5f0eac870a4"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
