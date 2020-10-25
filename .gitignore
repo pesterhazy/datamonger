@@ -1,5 +1,5 @@
 node_modules/
-public/js
+public/9a57cb91-581d-4d51-a539-b656be2a0b69/js
 
 /target
 /checkouts
@@ -19,7 +19,7 @@ pom.xml.asc
 .hgignore
 .hg/
 .lsp/sqlite.1.db
-public/static/example
+public/9a57cb91-581d-4d51-a539-b656be2a0b69/static/example
 test-public
 .rebel_readline_history
 dist

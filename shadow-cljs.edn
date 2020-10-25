@@ -14,13 +14,13 @@
 
  :builds
  {:app {:target :browser
-        :output-dir "public/js"
-        :asset-path "/js"
+        :output-dir "public/9a57cb91-581d-4d51-a539-b656be2a0b69/js"
+        :asset-path "/9a57cb91-581d-4d51-a539-b656be2a0b69/js"
         :modules {:main {:entries [datamonger.app]
                          :init-fn datamonger.app/init}}}
   :release {:target :browser
-            :output-dir "dist/js"
-            :asset-path "/js"
+            :output-dir "dist/9a57cb91-581d-4d51-a539-b656be2a0b69/js"
+            :asset-path "/9a57cb91-581d-4d51-a539-b656be2a0b69/js"
             :modules {:main {:entries [datamonger.app]
                              :init-fn datamonger.app/init}}}
   :test {:target    :browser-test
