@@ -214,10 +214,11 @@
                           (.then (fn [r] (reader/read-string r))))))))
        nil))))
 
-(defn url->rinf [url]
+(defn url->rinf [url parse-fn]
   (let [[pathname search] (str/split url #"\?")
         params (js/URLSearchParams. (or search ""))]
     {:pathname pathname
+     :route (parse-fn pathname)
      :params (->> params
                   (map (fn [[k v]]
                          [(keyword k) v]))
@@ -233,13 +234,18 @@
                               (str (name k) "=" (str v))))
                        (str/join "&"))))))
 
-(defn get-rinf []
-  (url->rinf (str js/location.pathname js/location.search)))
-
 (defn parse-pathname [pathname]
   (if-let [matches (re-matches #"^/examples/(.*)/(.*)$" pathname)]
-    {:route :example
-     :path-params (zipmap [:kind :fname](rest matches))}))
+    {:name :example
+     :path-params (zipmap [:kind :fname](rest matches))}
+    (if-let [matches (re-matches #"^/$" pathname)]
+      {:name :root
+       :path-params {}}
+      nil)))
+
+(defn get-rinf []
+  (url->rinf (str js/location.pathname js/location.search)
+             parse-pathname))
 
 (defn select-ui [{:keys [set-rinf]}]
   (->> ["/examples/json/widget.json"
@@ -283,14 +289,14 @@
                        (fn []
                          (js/window.removeEventListener "popstate" handle-change)))
                      #js[handle-change])
-    #pp rinf
-    #pp (parse-pathname (:pathname rinf))
-    (cond
-      (and (seq (:pathname rinf))
-           (not= "/" (:pathname rinf)))
+
+    (case (-> #pp rinf :route :name)
+      :root
+      [select-ui ctx]
+      :example
       [load-ui ctx]
-      :else
-      [select-ui ctx])))
+      nil
+      [:div "Route not found"])))
 
 (defn init []
   (when-let [[_ kind] (re-matches #"^/from-hash/(json|edn)$" js/location.pathname)]
