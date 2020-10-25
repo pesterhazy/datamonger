@@ -291,19 +291,14 @@
   ;; FIXME: prefix with /app
   (let [[rinf set-rinf] (react/useState (get-rinf))
         ctx {:rinf rinf
-             :set-rinf set-rinf ;; FIXME: remove
              :navigate-to (fn [arg]
-                            (if (fn? arg)
-                              (set-rinf (fn [rinf]
-                                          (let [new-rinf (arg rinf)]
-                                            (assoc new-rinf
-                                                   :pathname
-                                                   (route->pathname (:route new-rinf))))))
-                              (set-rinf (fn [rinf]
-                                          (-> rinf
-                                              (assoc :route (:route arg))
-                                              (assoc :pathname
-                                                     (route->pathname (:route arg))))))))}
+                            (set-rinf (fn [rinf]
+                                        (let [new-rinf (if (fn? arg)
+                                                         (arg rinf)
+                                                         arg)]
+                                          (assoc new-rinf
+                                                 :pathname
+                                                 (route->pathname (:route new-rinf)))))))}
         new-url (rinf->url rinf)
         handle-change (fn [] (set-rinf (get-rinf)))]
     (react/useEffect (fn []
