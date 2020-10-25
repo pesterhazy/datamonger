@@ -4,4 +4,4 @@ set -euo pipefail && cd "$(dirname "${BASH_SOURCE[0]}")/.."
 rm -rf dist
 mkdir -p dist
 npx shadow-cljs release release
-rsync -a public/{css,index.html,static} dist/
+rsync -a public/{css,index.html} dist/
