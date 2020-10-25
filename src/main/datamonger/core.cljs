@@ -165,7 +165,7 @@
   (let [transform (or (some-> rinf :params :transform keyword)
                       (first (keys the-transforms)))]
     [:div
-     [:div.back [:a.click {:on-click (fn [] (set-rinf {}))} "<< back"]]
+     [:div.back [:a.click {:on-click (fn [] (set-rinf {:pathname "/"}))} "<< back"]]
      [pick-ui {:xs the-transforms
                :x transform
                :on-click (fn [k]
@@ -219,7 +219,7 @@
         params (js/URLSearchParams. (or search ""))]
     {:pathname pathname
      :params (->> params
-                  (map (fn [[k v :as xxx]]
+                  (map (fn [[k v]]
                          [(keyword k) v]))
                   (into {}))}))
 (defn rinf->url [{:keys [pathname params]}]
@@ -235,6 +235,11 @@
 
 (defn get-rinf []
   (url->rinf (str js/location.pathname js/location.search)))
+
+(defn parse-pathname [pathname]
+  (if-let [matches (re-matches #"^/examples/(.*)/(.*)$" pathname)]
+    {:route :example
+     :path-params (zipmap [:kind :fname](rest matches))}))
 
 (defn select-ui [{:keys [set-rinf]}]
   (->> ["/examples/json/widget.json"
@@ -278,6 +283,8 @@
                        (fn []
                          (js/window.removeEventListener "popstate" handle-change)))
                      #js[handle-change])
+    #pp rinf
+    #pp (parse-pathname (:pathname rinf))
     (cond
       (and (seq (:pathname rinf))
            (not= "/" (:pathname rinf)))
