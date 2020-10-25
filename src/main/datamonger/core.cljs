@@ -218,7 +218,7 @@
 (defn url->rinf [url parse-fn]
   (let [[pathname search] (str/split url #"\?")
         params (js/URLSearchParams. (or search ""))]
-    {:pathname pathname
+    {:pathname pathname ;; FIXME: remove pathname from rinf
      :route (parse-fn pathname)
      :params (->> params
                   (map (fn [[k v]]
