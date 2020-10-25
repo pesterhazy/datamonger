@@ -273,10 +273,9 @@
 
 (defn select-ui [{:keys [navigate-to]}]
   (->> [{:kind :json :fname "widget.json"}
-        {:kind :json :fname "countries.json"}
         {:kind :json :fname "package.json"}
-        {:kind :edn :fname "shadow-cljs.edn"}
-        {:kind :edn :fname "presentation.edn"}]
+        {:kind :json :fname "countries.json"}
+        {:kind :edn :fname "shadow-cljs.edn"}]
        (map (fn [path-params]
               [:div
                [:a.click
