@@ -234,7 +234,7 @@
                               (str (name k) "=" (str v))))
                        (str/join "&"))))))
 
-(defn parse-pathname [pathname]
+(defn pathname->route [pathname]
   (if-let [matches (re-matches #"^/examples/(.*)/(.*)$" pathname)]
     {:name :example
      :path-params (zipmap [:kind :fname](rest matches))}
@@ -243,11 +243,19 @@
        :path-params {}}
       nil)))
 
+(defn route->pathname [{route-name :name, :keys [path-params]}]
+  (case route-name
+    :example
+    (str "/examples/"
+         (name (:kind path-params))
+         "/"
+         (:fname path-params))))
+
 (defn get-rinf []
   (url->rinf (str js/location.pathname js/location.search)
-             parse-pathname))
+             pathname->route))
 
-(defn select-ui [{:keys [set-rinf]}]
+(defn select-ui [{:keys [navigate-to]}]
   (->> ["/examples/json/widget.json"
         "/examples/json/countries.json"
         "/examples/json/package.json"
@@ -257,7 +265,11 @@
               [:div
                [:a.click
                 {:on-click
-                 (fn [] (set-rinf (fn [rinf] (assoc rinf :pathname fname))))}
+                 (fn []
+                   (navigate-to {:route {:name :example
+                                         :path-params {:kind :json
+                                                       :fname "widget.json"}}})
+                   #_(set-rinf (fn [rinf] (assoc rinf :pathname fname))))}
                 fname]]))
        (into [:div])))
 
@@ -277,7 +289,14 @@
 (defn main-ui []
   ;; FIXME: prefix with /app
   (let [[rinf set-rinf] (react/useState (get-rinf))
-        ctx {:rinf rinf :set-rinf set-rinf}
+        ctx {:rinf rinf
+             :set-rinf set-rinf ;; FIXME: remove
+             :navigate-to (fn [opts]
+                            (set-rinf (fn [rinf]
+                                        (-> rinf
+                                            (assoc :route (:route opts))
+                                            (assoc :pathname
+                                                   (route->pathname (:route opts)))))))}
         new-url (rinf->url rinf)
         handle-change (fn [] (set-rinf (get-rinf)))]
     (react/useEffect (fn []
