@@ -8,7 +8,6 @@
             [sci.core :as sci]
             ["react" :as react]))
 
-;; FIXME: back button is broken
 ;; TODO: table view with https://github.com/adazzle/react-data-grid
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -234,7 +233,7 @@
                               (str (name k) "=" (str v))))
                        (str/join "&"))))))
 
-(defn initial-rinf []
+(defn get-rinf []
   (url->rinf (str js/location.pathname js/location.search)))
 
 (defn select-ui [{:keys [set-rinf]}]
@@ -266,13 +265,19 @@
 
 (defn main-ui []
   ;; FIXME: prefix with /app
-  (let [[rinf set-rinf] (react/useState (initial-rinf))
+  (let [[rinf set-rinf] (react/useState (get-rinf))
         ctx {:rinf rinf :set-rinf set-rinf}
-        new-url (rinf->url rinf)]
+        new-url (rinf->url rinf)
+        handle-change (fn [] (set-rinf (get-rinf)))]
     (react/useEffect (fn []
                        (js/history.pushState {} nil (str js/location.origin new-url))
                        js/undefined)
                      #js[new-url])
+    (react/useEffect (fn []
+                       (js/window.addEventListener "popstate" handle-change)
+                       (fn []
+                         (js/window.removeEventListener "popstate" handle-change)))
+                     #js[handle-change])
     (cond
       (and (seq (:pathname rinf))
            (not= "/" (:pathname rinf)))
