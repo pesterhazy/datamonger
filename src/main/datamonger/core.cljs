@@ -196,22 +196,22 @@
                 r))
        (.then (fn [r]
                 (case kind
-                  "json"
+                  :json
                   (-> (.json r)
                       (.then (fn [r]
                                (js->clj r :keywordize-keys true))))
-                  "edn"
+                  :edn
                   (-> (.text r)
                       (.then (fn [r] (reader/read-string r))))))))))
 
 (defn load-blob+ [{:keys [kind id]}]
   (js/Promise.resolve
    (case kind
-     "json"
+     :json
      (-> (js/localStorage.getItem id)
          js/JSON.parse
          (js->clj :keywordize-keys true))
-     "edn"
+     :edn
      (-> (js/localStorage.getItem id)
          reader/read-string))))
 
@@ -236,28 +236,30 @@
                          (str/join "&")))))))
 
 (defn pathname->route [pathname]
-  (if-let [matches (re-matches #"^/example/(.*)/(.*)$" pathname)]
+  (if-let [matches (re-matches #"^/app/example/(.*)/(.*)$" pathname)]
     {:name :example
-     :path-params (zipmap [:kind :fname](rest matches))}
-    (if-let [matches (re-matches #"^/$" pathname)]
+     :path-params (-> (zipmap [:kind :fname] (rest matches))
+                      (update :kind keyword))}
+    (if-let [matches (re-matches #"^/(app/?)?$" pathname)]
       {:name :root
        :path-params {}}
-      (if-let [matches (re-matches #"^/blob/(.*)/(.*)$" pathname)]
+      (if-let [matches (re-matches #"^/app/blob/(.*)/(.*)$" pathname)]
         {:name :blob
-         :path-params (zipmap [:kind :id] (rest matches))}
+         :path-params (-> (zipmap [:kind :id] (rest matches))
+                          (update :kind keyword))}
         nil))))
 
 (defn route->pathname [{route-name :name, :keys [path-params]}]
   (case route-name
     :root
-    "/"
+    "/app"
     :example
-    (str "/example/"
+    (str "/app/example/"
          (name (:kind path-params))
          "/"
          (:fname path-params))
     :blob
-    (str "/blob/"
+    (str "/app/blob/"
          (name (:kind path-params))
          "/"
          (:id path-params))))
@@ -323,6 +325,7 @@
                      #js[handle-change])
     [route-ui ctx]))
 
+;; FIXME: add /app
 (defn init []
   (when-let [[_ kind] (re-matches #"^/from-hash/(json|edn)$" js/location.pathname)]
     (let [params (js/URLSearchParams. (-> js/location.hash
@@ -330,4 +333,8 @@
           data (.get params "data")
           id (random-uuid)]
       (js/localStorage.setItem (str id) data)
-      (js/history.pushState {} nil (str js/location.origin (str "/blob/" kind "/" id))))))
+      (js/history.pushState {} nil (str js/location.origin
+                                        "/app/blob/"
+                                        kind
+                                        "/"
+                                        id)))))
