@@ -161,16 +161,18 @@
                 (name k)]]))
        (into [:ul.menu])))
 
-(defn menu-ui [{:keys [rinf set-rinf]} v]
+(defn menu-ui [{:keys [rinf navigate-to]} v]
   (let [transform (or (some-> rinf :params :transform keyword)
                       (first (keys the-transforms)))]
     [:div
-     [:div.back [:a.click {:on-click (fn [] (set-rinf {:pathname "/"}))} "<< back"]]
+     [:div.back [:a.click {:on-click (fn [] (navigate-to {:route {:name :root}}))}
+                 "<< back"]]
      [pick-ui {:xs the-transforms
                :x transform
                :on-click (fn [k]
-                           (set-rinf (fn [rinf]
-                                       (assoc-in rinf [:params :transform] (name k)))))}]
+                           ;; FIXME
+                           #_(set-rinf (fn [rinf]
+                                         (assoc-in rinf [:params :transform] (name k)))))}]
      (let [co (fn [v]
                 (let [mode (or (some-> rinf :params :mode keyword)
                                (first (keys the-modes)))]
@@ -178,8 +180,9 @@
                    [pick-ui {:xs the-modes
                              :x mode
                              :on-click (fn [k]
-                                         (set-rinf (fn [rinf]
-                                                     (assoc-in rinf [:params :mode] (name k)))))}]
+                                         ;; FIXME
+                                         #_(set-rinf (fn [rinf]
+                                                       (assoc-in rinf [:params :mode] (name k)))))}]
                    [(or (the-modes mode) (throw "Unknown mode")) v]]))]
        ^{:key (name transform)}
        [transform-ui rinf co transform (the-transforms transform) v])]))
@@ -245,6 +248,8 @@
 
 (defn route->pathname [{route-name :name, :keys [path-params]}]
   (case route-name
+    :root
+    "/"
     :example
     (str "/examples/"
          (name (:kind path-params))
