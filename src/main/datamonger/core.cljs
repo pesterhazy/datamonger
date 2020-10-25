@@ -98,9 +98,9 @@
       (js/console.error e)
       {:error e})))
 
-(defn transform-ui [opts co transform transform-fn v]
+(defn transform-ui [rinf co transform transform-fn v]
   (let [!el (atom nil)
-        ls-key (str (name transform) ":"(-> opts :pathname))
+        ls-key (str (name transform) ":"(-> rinf :pathname))
         [dirty set-dirty] (react/useState false)
         [code set-code] (react/useState (js/localStorage.getItem ls-key))
         submit (fn [s]
@@ -162,28 +162,28 @@
                 (name k)]]))
        (into [:ul.menu])))
 
-(defn menu-ui [{:keys [opts set-opts]} v]
-  (let [transform (or (some-> opts :params :transform keyword)
+(defn menu-ui [{:keys [rinf set-rinf]} v]
+  (let [transform (or (some-> rinf :params :transform keyword)
                       (first (keys the-transforms)))]
     [:div
-     [:div.back [:a.click {:on-click (fn [] (set-opts {}))} "<< back"]]
+     [:div.back [:a.click {:on-click (fn [] (set-rinf {}))} "<< back"]]
      [pick-ui {:xs the-transforms
                :x transform
                :on-click (fn [k]
-                           (set-opts (fn [opts]
-                                       (assoc-in opts [:params :transform] (name k)))))}]
+                           (set-rinf (fn [rinf]
+                                       (assoc-in rinf [:params :transform] (name k)))))}]
      (let [co (fn [v]
-                (let [mode (or (some-> opts :params :mode keyword)
+                (let [mode (or (some-> rinf :params :mode keyword)
                                (first (keys the-modes)))]
                   [:div
                    [pick-ui {:xs the-modes
                              :x mode
                              :on-click (fn [k]
-                                         (set-opts (fn [opts]
-                                                     (assoc-in opts [:params :mode] (name k)))))}]
+                                         (set-rinf (fn [rinf]
+                                                     (assoc-in rinf [:params :mode] (name k)))))}]
                    [(or (the-modes mode) (throw "Unknown mode")) v]]))]
        ^{:key (name transform)}
-       [transform-ui opts co transform (the-transforms transform) v])]))
+       [transform-ui rinf co transform (the-transforms transform) v])]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -215,7 +215,7 @@
                           (.then (fn [r] (reader/read-string r))))))))
        nil))))
 
-(defn url->opts [url]
+(defn url->rinf [url]
   (let [[pathname search] (str/split url #"\?")
         params (js/URLSearchParams. (or search ""))]
     {:pathname pathname
@@ -223,7 +223,7 @@
                   (map (fn [[k v :as xxx]]
                          [(keyword k) v]))
                   (into {}))}))
-(defn opts->url [{:keys [pathname params]}]
+(defn rinf->url [{:keys [pathname params]}]
   (str (str (if (str/starts-with? (or pathname "") "/")
               nil
               "/")
@@ -234,7 +234,7 @@
                               (str (name k) "=" (str v))))
                        (str/join "&"))))))
 
-(defn select-ui [{:keys [set-opts]}]
+(defn select-ui [{:keys [set-rinf]}]
   (->> ["/examples/json/widget.json"
         "/examples/json/countries.json"
         "/examples/json/package.json"
@@ -244,15 +244,15 @@
               [:div
                [:a.click
                 {:on-click
-                 (fn [] (set-opts (fn [opts] (assoc opts :pathname fname))))}
+                 (fn [] (set-rinf (fn [rinf] (assoc rinf :pathname fname))))}
                 fname]]))
        (into [:div])))
 
-(defn load-ui [{:keys [opts] :as ctx}]
+(defn load-ui [{:keys [rinf] :as ctx}]
   (let [[v update-v] (react/useState nil)]
     (react/useEffect
      (fn []
-       (-> (load+ (:pathname opts))
+       (-> (load+ (:pathname rinf))
            (.then (fn [result]
                     (update-v result))))
        js/undefined)
@@ -263,16 +263,16 @@
 
 (defn main-ui []
   ;; FIXME: prefix with /app
-  (let [[opts set-opts] (react/useState (url->opts (str js/location.pathname js/location.search)))
-        ctx {:opts opts :set-opts set-opts}
-        new-url (opts->url opts)]
+  (let [[rinf set-rinf] (react/useState (url->rinf (str js/location.pathname js/location.search)))
+        ctx {:rinf rinf :set-rinf set-rinf}
+        new-url (rinf->url #pp rinf)]
     (react/useEffect (fn []
                        (js/history.pushState {} nil (str js/location.origin new-url))
                        js/undefined)
                      #js[new-url])
     (cond
-      (and (seq (:pathname opts))
-           (not= "/" (:pathname opts)))
+      (and (seq (:pathname rinf))
+           (not= "/" (:pathname rinf)))
       [load-ui ctx]
       :else
       [select-ui ctx])))
