@@ -224,16 +224,17 @@
                   (map (fn [[k v]]
                          [(keyword k) v]))
                   (into {}))}))
-(defn rinf->url [{:keys [pathname params]}]
-  (str (str (if (str/starts-with? (or pathname "") "/")
-              nil
-              "/")
-            pathname)
-       (when (seq params)
-         (str "?" (->> params
-                       (map (fn [[k v]]
-                              (str (name k) "=" (str v))))
-                       (str/join "&"))))))
+(defn rinf->url [{:keys [route params]} unparse-fn]
+  (let [pathname (unparse-fn route)]
+    (str (str (if (str/starts-with? (or pathname "") "/")
+                nil
+                "/")
+              pathname)
+         (when (seq params)
+           (str "?" (->> params
+                         (map (fn [[k v]]
+                                (str (name k) "=" (str v))))
+                         (str/join "&")))))))
 
 (defn pathname->route [pathname]
   (if-let [matches (re-matches #"^/examples/(.*)/(.*)$" pathname)]
@@ -299,7 +300,7 @@
                                           (assoc new-rinf
                                                  :pathname
                                                  (route->pathname (:route new-rinf)))))))}
-        new-url (rinf->url rinf)
+        new-url (rinf->url rinf route->pathname)
         handle-change (fn [] (set-rinf (get-rinf)))]
     (react/useEffect (fn []
                        (js/history.pushState {} nil (str js/location.origin new-url))
