@@ -139,6 +139,9 @@
 (defn pprint-ui [v]
   [:pre.pprint (with-out-str (clojure.pprint/pprint v))])
 
+(defn print-table-ui [v]
+  [:pre.pprint (with-out-str (clojure.pprint/print-table v))])
+
 (defn interactive-ui [v]
   (d/DataFriskView v))
 
@@ -147,6 +150,7 @@
 (def the-modes
   {:preview preview-ui
    :pprint pprint-ui
+   :print-table print-table-ui
    :interactive interactive-ui})
 
 (def the-transforms
