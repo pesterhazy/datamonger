@@ -171,8 +171,11 @@
                     (map (fn [field] (get row field)) fields))))
         columns
         (map name fields)]
-    [:> gridjs/Grid {:data data
-                     :columns columns}]))
+    [:div.mr.ml
+     [:> gridjs/Grid {:data data
+                      :columns columns
+                      :sort true
+                      :search #js{:enabled true}}]]))
 
 (defn interactive-ui [v]
   (d/DataFriskView v))

@@ -46,6 +46,12 @@ body {
 .mb {
     margin-bottom: 20px;
 }
+.ml {
+    margin-left: 20px;
+}
+.mr {
+    margin-right: 20px;
+}
 
 .comment {
     margin-top: 10px;
