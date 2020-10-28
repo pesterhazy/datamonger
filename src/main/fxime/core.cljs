@@ -8,6 +8,7 @@
             [sci.core :as sci]
             ["react" :as react]))
 
+;; FIXME: use error boundary
 ;; TODO: table view with https://github.com/adazzle/react-data-grid
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
