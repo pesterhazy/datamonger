@@ -7,7 +7,8 @@
             [goog.object :as gobj]
             [sci.core :as sci]
             [reagent.core :as r]
-            ["react" :as react]))
+            ["react" :as react]
+            ["gridjs-react" :as gridjs]))
 
 (defn err-boundary
   []
@@ -159,6 +160,20 @@
     (throw "Unexpected datastructure"))
   [:pre.pprint (with-out-str (clojure.pprint/print-table v))])
 
+(defn grid-ui [v]
+  (when-not (and (seq v) (map? (first v)))
+    (throw "Unexpected datastructure"))
+  (let [fields
+        (-> v first keys)
+        data
+        (->> v
+             (map (fn [row]
+                    (map (fn [field] (get row field)) fields))))
+        columns
+        (map name fields)]
+    [:> gridjs/Grid {:data data
+                     :columns columns}]))
+
 (defn interactive-ui [v]
   (d/DataFriskView v))
 
@@ -168,6 +183,7 @@
   {:preview preview-ui
    :pprint pprint-ui
    :print-table print-table-ui
+   :grid grid-ui
    :interactive interactive-ui})
 
 (def the-transforms
