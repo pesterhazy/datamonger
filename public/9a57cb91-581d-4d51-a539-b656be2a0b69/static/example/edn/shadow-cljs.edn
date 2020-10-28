@@ -16,8 +16,8 @@
  {:app {:target :browser
         :output-dir "public/js"
         :asset-path "/js"
-        :modules {:main {:entries [datamonger.app]
-                         :init-fn datamonger.app/init}}}
+        :modules {:main {:entries [fxime.app]
+                         :init-fn fxime.app/init}}}
   :test {:target    :browser-test
          :test-dir  "test-public"
          :ns-regexp "-test$"

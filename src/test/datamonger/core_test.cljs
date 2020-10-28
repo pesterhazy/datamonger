@@ -1,6 +1,6 @@
-(ns datamonger.core-test
+(ns fxime.core-test
   (:require [clojure.test :refer [is deftest]]
-            [datamonger.core :as x]))
+            [fxime.core :as x]))
 
 (defn roundtrip [s]
   (is (= s (-> s
@@ -58,8 +58,8 @@
     {:app {:target :browser
            :output-dir "public/js"
            :asset-path "/js"
-           :modules {:main {:entries [datamonger.app]
-                            :init-fn datamonger.app/init}}}
+           :modules {:main {:entries [fxime.app]
+                            :init-fn fxime.app/init}}}
      :test {:target    :browser-test
             :test-dir  "test-public"
             :ns-regexp "-test$"

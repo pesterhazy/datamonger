@@ -1,5 +1,5 @@
-(ns datamonger.app
-  (:require [datamonger.core :as core]
+(ns fxime.app
+  (:require [fxime.core :as core]
             [reagent.core :as r]
             [reagent.dom :as rd]))
 
