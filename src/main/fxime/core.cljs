@@ -6,7 +6,21 @@
             [datafrisk.core :as d]
             [goog.object :as gobj]
             [sci.core :as sci]
+            [reagent.core :as r]
             ["react" :as react]))
+
+(defn err-boundary
+  [& children]
+  (let [err-state (r/atom nil)]
+    (r/create-class
+     {:display-name "ErrBoundary"
+      :component-did-catch (fn [err info]
+                             (reset! err-state [err info]))
+      :reagent-render (fn [& children]
+                        (if (nil? @err-state)
+                          (into [:<>] children)
+                          (let [[_ info] @err-state]
+                            [:pre [:code (pr-str info)]])))})))
 
 ;; FIXME: use error boundary
 ;; TODO: table view with https://github.com/adazzle/react-data-grid
@@ -187,7 +201,9 @@
                              :on-click (fn [k]
                                          (navigate-to (fn [rinf]
                                                         (assoc-in rinf [:params :mode] (name k)))))}]
-                   [(or (the-modes mode) (throw "Unknown mode")) v]]))]
+
+                   [err-boundary
+                    [(or (the-modes mode) (throw "Unknown mode")) v]]]))]
        ^{:key (name transform)}
        [transform-ui rinf co transform (the-transforms transform) v])]))
 
