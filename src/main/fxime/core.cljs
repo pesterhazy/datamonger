@@ -10,17 +10,15 @@
             ["react" :as react]))
 
 (defn err-boundary
-  [& children]
-  (let [err-state (r/atom nil)]
-    (r/create-class
-     {:display-name "ErrBoundary"
-      :component-did-catch (fn [err info]
-                             (reset! err-state [err info]))
-      :reagent-render (fn [& children]
-                        (if (nil? @err-state)
-                          (into [:<>] children)
-                          (let [[_ info] @err-state]
-                            [:pre [:code (pr-str info)]])))})))
+  []
+  (r/create-class
+   {:display-name "err-boundary"
+    :get-derived-state-from-error (fn [error]
+                                    #js {:error error})
+    :reagent-render (fn [& children]
+                      (if-let [error (some-> (.-state (r/current-component)) .-error)]
+                        [:pre [:code "Error while printing: " (pr-str error)]]
+                        (into [:<>] children)))}))
 
 ;; FIXME: use error boundary
 ;; TODO: table view with https://github.com/adazzle/react-data-grid
@@ -112,6 +110,12 @@
       (js/console.error e)
       {:error e})))
 
+(defn display-ui [co v transform-fn code]
+  (let [v* (transform-fn code v)]
+    (when-let [comment (-> v* meta :comment)]
+      [:div.comment comment])
+    [co v*]))
+
 (defn transform-ui [rinf co transform transform-fn v]
   (let [!el (atom nil)
         ls-key (str (name transform) ":" (or (-> rinf :route :path-params :fname)
@@ -121,8 +125,7 @@
         submit (fn [s]
                  (set-dirty false)
                  (js/localStorage.setItem ls-key s)
-                 (set-code s))
-        v* (transform-fn code v)]
+                 (set-code s))]
     [:div
      [:div {:style {:width 600}}
       [:textarea {:ref (fn [el] (reset! !el el))
@@ -140,9 +143,8 @@
       [:div.mb
        [:a.click {:on-click (fn [] (submit (-> @!el .-value)))}
         "apply"]]]
-     (when-let [comment (-> v* meta :comment)]
-       [:div.comment comment])
-     [co v*]]))
+     [err-boundary {:key code} ;; use code as key to clear error state
+      [display-ui co v transform-fn code]]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -154,6 +156,8 @@
   [:pre.pprint (with-out-str (clojure.pprint/pprint v))])
 
 (defn print-table-ui [v]
+  (when-not (and (seq v) (map? (first v)))
+    (throw "Unexpected datastructure"))
   [:pre.pprint (with-out-str (clojure.pprint/print-table v))])
 
 (defn interactive-ui [v]
