@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail && cd "$(dirname "${BASH_SOURCE[0]}")/.."
+
+set -x
+
+stack_name="fxime-web"
+
+aws cloudformation deploy \
+    --no-fail-on-empty-changeset \
+    --capabilities CAPABILITY_IAM \
+    --template-file template.yaml \
+    --stack-name "$stack_name"
+
+aws cloudformation describe-stacks \
+    --stack-name "$stack_name" \
+    --query "Stacks[0].Outputs"

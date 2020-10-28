@@ -1,0 +1,103 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Static website
+Parameters:
+  DomainName:
+    Type: String
+    Default: fxime.com
+  BucketName:
+    Type: String
+    Default: fxime.com-7ca30aea-feff-40e2-ac8e-9965d2a6c40a
+Resources:
+  WebsiteBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref 'BucketName'
+      CorsConfiguration:
+        CorsRules:
+          -
+            AllowedOrigins:
+              - "*"
+            AllowedMethods:
+              - GET
+              - HEAD
+            AllowedHeaders:
+              - "*"
+      WebsiteConfiguration:
+        IndexDocument: index.html
+    DeletionPolicy: Retain
+
+  WebsiteCloudfront:
+    Type: AWS::CloudFront::Distribution
+    DependsOn:
+    - WebsiteBucket
+    Properties:
+      DistributionConfig:
+        Comment: Cloudfront Distribution pointing to S3 bucket
+        Origins:
+        - DomainName: !Join [ "", [ !Ref BucketName, ".s3-eu-central-1.amazonaws.com" ] ]
+          Id: S3Origin
+          S3OriginConfig:
+            OriginAccessIdentity:
+              !Join [ "", [ "origin-access-identity/cloudfront/", !Ref WebsiteOAI ] ]
+        Enabled: true
+        HttpVersion: 'http2'
+        DefaultRootObject: index.html
+        Aliases:
+        - "fxime.com"
+        DefaultCacheBehavior:
+          AllowedMethods:
+          - GET
+          - HEAD
+          Compress: true
+          TargetOriginId: S3Origin
+          ForwardedValues:
+            QueryString: true
+            Cookies:
+              Forward: none
+          ViewerProtocolPolicy: redirect-to-https
+          LambdaFunctionAssociations:
+            - EventType: 'viewer-request'
+              # See template-fun.yaml
+              LambdaFunctionARN: arn:aws:lambda:us-east-1:375213514473:function:fxime-fun-ViewerRequestFn2-PMDBP6KB0KJW:1
+        PriceClass: PriceClass_All
+        ViewerCertificate:
+          AcmCertificateArn: arn:aws:acm:us-east-1:375213514473:certificate/d0e1ab96-f8af-4210-beb8-3b2ab53f245f
+          SslSupportMethod: sni-only
+
+  WebsiteDNSName:
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneId: Z0487738130S33P559BHH # fxime.com
+      RecordSets:
+      - Name: fxime.com
+        Type: A
+        AliasTarget:
+          HostedZoneId: Z2FDTNDATAQYW2
+          DNSName: !GetAtt [WebsiteCloudfront, DomainName]
+
+  WebsiteOAI:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: !Sub 'CloudFront OAI for ${BucketName}'
+
+  BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref BucketName
+      PolicyDocument:
+        Statement:
+          -
+            Action:
+              - s3:GetObject
+            Effect: Allow
+            Resource: !Join [ "", [ "arn:aws:s3:::", !Ref BucketName, "/*" ] ]
+            Principal:
+              CanonicalUser: !GetAtt WebsiteOAI.S3CanonicalUserId
+Outputs:
+  BucketName:
+    Value: !Ref 'WebsiteBucket'
+    Description: Name of S3 bucket to hold website content
+  CloudfrontEndpoint:
+    Value: !GetAtt [WebsiteCloudfront, DomainName]
+    Description: Endpoint for Cloudfront distribution

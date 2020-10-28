@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+set -euo pipefail && cd "$(dirname "${BASH_SOURCE[0]}")/.."
+
+command -v aws >/dev/null 2>&1 || { echo >&2 "aws cli is required but it's not installed."; exit 1; }
+
+BUCKET_NAME="fxime.com-7ca30aea-feff-40e2-ac8e-9965d2a6c40a"
+
+DIST_FOLDER=../datamonger/dist
+
+find "$DIST_FOLDER"
+
+echo "Uploading static assets from ${DIST_FOLDER} to s3://${BUCKET_NAME}"
+
+aws s3 sync \
+    --exclude "index.html" \
+    --cache-control max-age=31536000 \
+    "$DIST_FOLDER" "s3://${BUCKET_NAME}/"
+
+aws s3 cp "$DIST_FOLDER/index.html" s3://"$BUCKET_NAME/index.html" \
+  --cache-control max-age=60
+
+echo "All done."
