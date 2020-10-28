@@ -6,7 +6,7 @@ command -v aws >/dev/null 2>&1 || { echo >&2 "aws cli is required but it's not i
 
 BUCKET_NAME="fxime.com-7ca30aea-feff-40e2-ac8e-9965d2a6c40a"
 
-DIST_FOLDER=../datamonger/dist
+DIST_FOLDER=dist
 
 find "$DIST_FOLDER"
 

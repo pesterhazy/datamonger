@@ -20,7 +20,6 @@
                         [:pre [:code "Error while printing: " (pr-str error)]]
                         (into [:<>] children)))}))
 
-;; FIXME: use error boundary
 ;; TODO: table view with https://github.com/adazzle/react-data-grid
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
