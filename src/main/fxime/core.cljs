@@ -3,12 +3,19 @@
             [clojure.pprint]
             [clojure.string :as str]
             [cljs.reader :as reader]
+            [cognitect.transit :as t]
             [datafrisk.core :as d]
             [goog.object :as gobj]
             [sci.core :as sci]
             [reagent.core :as r]
             ["react" :as react]
             ["gridjs-react" :as gridjs]))
+
+(defonce !transit-reader
+  (delay (t/reader :json)))
+
+(defn read-transit [s]
+  (t/read @!transit-reader s))
 
 (defn err-boundary
   []
@@ -249,7 +256,10 @@
                                (js->clj r :keywordize-keys true))))
                   :edn
                   (-> (.text r)
-                      (.then (fn [r] (reader/read-string r))))))))))
+                      (.then (fn [r] (reader/read-string r))))
+                  :transit
+                  (-> (.text r)
+                      (.then (fn [r] (read-transit r))))))))))
 
 (defn load-blob+ [{:keys [kind id]}]
   (js/Promise.resolve
@@ -315,11 +325,15 @@
   (url->rinf (str js/location.pathname js/location.search)
              pathname->route))
 
+(def the-examples
+  [{:kind :json :fname "widget.json"}
+   {:kind :json :fname "package.json"}
+   {:kind :json :fname "countries.json"}
+   {:kind :edn :fname "shadow-cljs.edn"}
+   {:kind :transit :fname "angels.transit"}])
+
 (defn select-ui [{:keys [navigate-to]}]
-  (->> [{:kind :json :fname "widget.json"}
-        {:kind :json :fname "package.json"}
-        {:kind :json :fname "countries.json"}
-        {:kind :edn :fname "shadow-cljs.edn"}]
+  (->> the-examples
        (map (fn [path-params]
               [:div
                [:a.click
