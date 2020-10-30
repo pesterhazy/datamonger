@@ -187,10 +187,10 @@
 
 (defn preview-ui [v]
   (binding [clojure.core/*print-length* 3]
-    [:div.pr (pr-str v)]))
+    [:code.pr (pr-str v)]))
 
 (defn pr-ui [v]
-  [:div.pr (xpr v)])
+  [:code (xpr v)])
 
 (defn pprint-ui [v]
   [:pre.pprint (with-out-str (clojure.pprint/pprint v))])
