@@ -43,6 +43,10 @@ body {
 .pprint {
 }
 
+.pr {
+    font-family: monospace;
+}
+
 .mb {
     margin-bottom: 20px;
 }

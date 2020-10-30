@@ -157,7 +157,10 @@
 
 (defn preview-ui [v]
   (binding [clojure.core/*print-length* 3]
-    [:pre.pprint (pr-str v)]))
+    [:div.pr (pr-str v)]))
+
+(defn pr-ui [v]
+  [:div.pr (with-out-str (pr v))])
 
 (defn pprint-ui [v]
   [:pre.pprint (with-out-str (clojure.pprint/pprint v))])
@@ -192,6 +195,7 @@
 (def the-modes
   {:preview preview-ui
    :pprint pprint-ui
+   :pr pr-ui
    :print-table print-table-ui
    :grid grid-ui
    :interactive interactive-ui})
