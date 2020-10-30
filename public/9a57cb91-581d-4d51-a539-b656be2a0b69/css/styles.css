@@ -66,3 +66,7 @@ body {
 .dirty {
     background-color: #fce3ec;
 }
+
+a:hover {
+ cursor:pointer;
+}
