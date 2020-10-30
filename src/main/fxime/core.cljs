@@ -24,7 +24,7 @@
                      (map (fn [[mk mv]]
                             [:span.pair [:span.k [xpr mk]] " " [:span.v [xpr mv]]]))
                      (interpose ", "))
-                ["..."]))
+                ["..." (count v) "..."]))
         (conj [:a {:on-click (fn [] (set-expanded not))} "}"]))))
 
 (defn xpr-seq-ui [v opening closing]
