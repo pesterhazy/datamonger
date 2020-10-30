@@ -19,11 +19,13 @@
 (defn xpr-map-ui [v]
   (let [[expanded set-expanded] (react/useState true)]
     (-> [:span [:a {:on-click #(set-expanded not)} "{"]]
-        (into (->> v
-                   (map (fn [[mk mv]]
-                          [:span.pair [:span.k [xpr mk]] " " [:span.v [xpr mv]]]))
-                   (interpose ", ")))
-        (conj [:a {:on-click #(js/alert "boom")} "{"]))))
+        (into (if expanded
+                (->> v
+                     (map (fn [[mk mv]]
+                            [:span.pair [:span.k [xpr mk]] " " [:span.v [xpr mv]]]))
+                     (interpose ", "))
+                ["..."]))
+        (conj [:a {:on-click #(js/alert "boom")} "}"]))))
 
 (defn xpr [v]
   (cond
