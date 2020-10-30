@@ -9,7 +9,37 @@
             [sci.core :as sci]
             [reagent.core :as r]
             ["react" :as react]
-            ["gridjs-react" :as gridjs]))
+            ["gridjs-react" :as gridjs])
+  (:import [goog.string StringBuffer]))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn xpr [v]
+  (cond
+    (map? v)
+    (-> (->> v
+             (map (fn [[mk mv]]
+                    [:span.pair (xpr mk) " " (xpr mv)]))
+             (interpose ", ")
+             (into [:span "{"]))
+        (conj "}"))
+    (vector? v)
+    (-> (->> v
+             (map (fn [e]
+                    (xpr e)))
+             (into [:span "["]))
+        (conj "]"))
+    (sequential? v)
+    (-> (->> v
+             (map (fn [e]
+                    (xpr e)))
+             (into [:span "("]))
+        (conj ")"))
+
+    :else
+    [:span.leaf (pr-str v)]))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defonce !transit-reader
   (delay (t/reader :json)))
@@ -160,7 +190,7 @@
     [:div.pr (pr-str v)]))
 
 (defn pr-ui [v]
-  [:div.pr (with-out-str (pr v))])
+  [:div.pr (xpr v)])
 
 (defn pprint-ui [v]
   [:pre.pprint (with-out-str (clojure.pprint/pprint v))])
