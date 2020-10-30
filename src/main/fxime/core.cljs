@@ -35,7 +35,7 @@
                      (map (fn [vv]
                             [xpr vv]))
                      (interpose " "))
-                ["..."]))
+                ["..." (count v) "..."]))
         (conj [:a {:on-click (fn [] (set-expanded not))} closing]))))
 
 (defn xpr [v]
