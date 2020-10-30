@@ -19,7 +19,7 @@
     (map? v)
     (-> (->> v
              (map (fn [[mk mv]]
-                    [:span.pair (xpr mk) " " (xpr mv)]))
+                    [:span.pair [:span.k (xpr mk)] " " [:span.v (xpr mv)]]))
              (interpose ", ")
              (into [:span "{"]))
         (conj "}"))

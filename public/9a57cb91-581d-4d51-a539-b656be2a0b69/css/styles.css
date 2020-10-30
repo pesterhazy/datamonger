@@ -15,8 +15,8 @@ body {
 }
 
 .menu-item a {
-    background-color: #f0f0f0;
-    color: blue;
+    color: #fdf6e3;
+    background-color: #2aa198;
     display: block;
     text-align: center;
     padding: 10px;
@@ -24,11 +24,13 @@ body {
 }
 
 .menu-item a:hover {
-    background-color: #e0e0e0;
+    background: #ff0;
+    color: #000;
 }
 
 .menu-item a.selected {
-    background-color: #60f0f0;
+    color: #fdf6e3;
+    background-color: #dc322f;
 }
 
 .click {
