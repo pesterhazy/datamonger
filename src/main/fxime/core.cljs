@@ -18,32 +18,34 @@
 
 (defn xpr-map-ui [v]
   (let [[expanded set-expanded] (react/useState true)]
-    (-> [:span [:a {:on-click #(set-expanded not)} "{"]]
+    (-> [:span [:a {:on-click (fn [] (set-expanded not))} "{"]]
         (into (if expanded
                 (->> v
                      (map (fn [[mk mv]]
                             [:span.pair [:span.k [xpr mk]] " " [:span.v [xpr mv]]]))
                      (interpose ", "))
                 ["..."]))
-        (conj [:a {:on-click #(js/alert "boom")} "}"]))))
+        (conj [:a {:on-click (fn [] (set-expanded not))} "}"]))))
+
+(defn xpr-seq-ui [v opening closing]
+  (let [[expanded set-expanded] (react/useState true)]
+    (-> [:span [:a {:on-click (fn [] (set-expanded not))} opening]]
+        (into (if expanded
+                (->> v
+                     (map (fn [vv]
+                            [xpr vv]))
+                     (interpose " "))
+                ["..."]))
+        (conj [:a {:on-click (fn [] (set-expanded not))} closing]))))
 
 (defn xpr [v]
   (cond
     (map? v)
     [:f> xpr-map-ui v]
     (vector? v)
-    (-> (->> v
-             (map (fn [e]
-                    [xpr e]))
-             (into [:span "["]))
-        (conj "]"))
+    [:f> xpr-seq-ui v "[" "]"]
     (sequential? v)
-    (-> (->> v
-             (map (fn [e]
-                    [xpr e]))
-             (into [:span "("]))
-        (conj ")"))
-
+    [:f> xpr-seq-ui v "(" ")"]
     :else
     [:span.leaf (pr-str v)]))
 
