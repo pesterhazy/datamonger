@@ -422,7 +422,6 @@
     [:div "Route not found"]))
 
 (defn router-ui []
-  ;; FIXME: prefix with /app
   (let [[rinf set-rinf] (react/useState (get-rinf))
         ctx {:rinf rinf
              :navigate-to set-rinf}
