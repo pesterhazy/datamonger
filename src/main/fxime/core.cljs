@@ -14,38 +14,38 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(declare xpr)
+(declare xpr-ui)
 
-(defn xpr-map-ui [v]
-  (let [[expanded set-expanded] (react/useState true)]
+(defn xpr-map-ui [v opts]
+  (let [[expanded set-expanded] (react/useState (not (:collapsed-by-default opts)))]
     (-> [:span [:a {:on-click (fn [] (set-expanded not))} "{"]]
         (into (if expanded
                 (->> v
                      (map (fn [[mk mv]]
-                            [:span.pair [:span.k [xpr mk]] " " [:span.v [xpr mv]]]))
+                            [:span.pair [:span.k [xpr-ui mk opts]] " " [:span.v [xpr-ui mv opts]]]))
                      (interpose ", "))
                 ["..." (count v) "..."]))
         (conj [:a {:on-click (fn [] (set-expanded not))} "}"]))))
 
-(defn xpr-seq-ui [v opening closing]
-  (let [[expanded set-expanded] (react/useState true)]
+(defn xpr-seq-ui [v opening closing opts]
+  (let [[expanded set-expanded] (react/useState (not (:collapsed-by-default opts)))]
     (-> [:span [:a {:on-click (fn [] (set-expanded not))} opening]]
         (into (if expanded
                 (->> v
                      (map (fn [vv]
-                            [xpr vv]))
+                            [xpr-ui vv opts]))
                      (interpose " "))
                 ["..." (count v) "..."]))
         (conj [:a {:on-click (fn [] (set-expanded not))} closing]))))
 
-(defn xpr [v]
+(defn xpr-ui [v opts]
   (cond
     (map? v)
-    [:f> xpr-map-ui v]
+    [:f> xpr-map-ui v opts]
     (vector? v)
-    [:f> xpr-seq-ui v "[" "]"]
+    [:f> xpr-seq-ui v "[" "]" opts]
     (sequential? v)
-    [:f> xpr-seq-ui v "(" ")"]
+    [:f> xpr-seq-ui v "(" ")" opts]
     :else
     [:span.leaf (pr-str v)]))
 
@@ -200,7 +200,7 @@
     [:code.pr (pr-str v)]))
 
 (defn pr-ui [v]
-  [:code [xpr v]])
+  [:code [xpr-ui v {:collapsed-by-default true}]])
 
 (defn pprint-ui [v]
   [:pre.pprint (with-out-str (clojure.pprint/pprint v))])
