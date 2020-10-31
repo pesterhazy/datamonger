@@ -199,18 +199,18 @@
 
 (defn preview-ui [v]
   (binding [clojure.core/*print-length* 3]
-    [:code.pr (pr-str v)]))
+    [:code (pr-str v)]))
 
 (defn pr-ui [v]
   [:code [xpr-ui v {:collapsed-by-default true}]])
 
 (defn pprint-ui [v]
-  [:pre.pprint (with-out-str (clojure.pprint/pprint v))])
+  [:pre (with-out-str (clojure.pprint/pprint v))])
 
 (defn print-table-ui [v]
   (when-not (and (seq v) (map? (first v)))
     (throw "Unexpected datastructure"))
-  [:pre.pprint (with-out-str (clojure.pprint/print-table v))])
+  [:pre (str/trim (with-out-str (clojure.pprint/print-table v)))])
 
 (defn grid-ui [v]
   (when-not (and (seq v) (map? (first v)))

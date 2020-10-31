@@ -64,6 +64,8 @@ pre,
 samp {
   font-family: monospace, serif;
   font-size: 1em;
+  margin: 1em 0px;
+  display: block;
 }
 pre {
   white-space: pre-wrap;
@@ -187,7 +189,10 @@ body {
 }
 code {
   background-color: #fdf6e3;
-  padding: 2px;
+  color: #657b83;
+  border: 1pt solid #93a1a1;
+  padding: 1em;
+  box-shadow: 5pt 5pt 8pt #eee8d5;
 }
 a {
   color: #b58900;
