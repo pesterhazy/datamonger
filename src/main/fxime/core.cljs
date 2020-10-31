@@ -17,26 +17,28 @@
 (declare xpr-ui)
 
 (defn xpr-map-ui [v opts]
-  (let [[expanded set-expanded] (react/useState (not (:collapsed-by-default opts)))]
-    (-> [:span [:a {:on-click (fn [] (set-expanded not))} "{"]]
+  (let [[expanded set-expanded] (react/useState (not (:collapsed-by-default opts)))
+        toggle (fn [] (set-expanded not))]
+    (-> [:span [:a {:on-click toggle} "{"]]
         (into (if expanded
                 (->> v
                      (map (fn [[mk mv]]
                             [:span.pair [:span.k [xpr-ui mk opts]] " " [:span.v [xpr-ui mv opts]]]))
                      (interpose ", "))
-                ["..." (count v) "..."]))
-        (conj [:a {:on-click (fn [] (set-expanded not))} "}"]))))
+                [[:a {:on-click toggle} "#_elided_" (count v)]]))
+        (conj [:a {:on-click toggle} "}"]))))
 
 (defn xpr-seq-ui [v opening closing opts]
-  (let [[expanded set-expanded] (react/useState (not (:collapsed-by-default opts)))]
-    (-> [:span [:a {:on-click (fn [] (set-expanded not))} opening]]
+  (let [[expanded set-expanded] (react/useState (not (:collapsed-by-default opts)))
+        toggle (fn [] (set-expanded not))]
+    (-> [:span [:a {:on-click toggle} opening]]
         (into (if expanded
                 (->> v
                      (map (fn [vv]
                             [xpr-ui vv opts]))
                      (interpose " "))
-                ["..." (count v) "..."]))
-        (conj [:a {:on-click (fn [] (set-expanded not))} closing]))))
+                [[:a {:on-click toggle} "#_elided_" (count v)]]))
+        (conj [:a {:on-click toggle} closing]))))
 
 (defn xpr-ui [v opts]
   (cond
