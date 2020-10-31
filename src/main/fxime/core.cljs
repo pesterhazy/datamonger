@@ -256,16 +256,18 @@
                 (name k)]]))
        (into [:ul.menu])))
 
+(defn header-ui [& children]
+  [:div.header
+   (into [:div] children)
+   [:div (str "fxime-" (gobj/get js/window "fxime_version"))]])
+
 (defn menu-ui [{:keys [rinf navigate-to]} v]
   (let [transform (or (some-> rinf :params :transform keyword)
                       (first (keys the-transforms)))]
     [:div
-     [:div.header
-      [:div
-       [:div.back [:a.click {:on-click (fn [] (navigate-to {:route {:name :root}}))}
-                   "<< back"]]]
-      [:div (str "fxime-" (gobj/get js/window "fxime_version"))]]
-
+     [header-ui
+      [:div.back [:a.click {:on-click (fn [] (navigate-to {:route {:name :root}}))}
+                  "<< back"]]]
      [pick-ui {:xs the-transforms
                :x transform
                :on-click (fn [k]
@@ -383,16 +385,18 @@
    {:kind :transit :fname "angels.transit"}])
 
 (defn select-ui [{:keys [navigate-to]}]
-  (->> the-examples
-       (map (fn [path-params]
-              [:div
-               [:a.click
-                {:on-click
-                 (fn []
-                   (navigate-to {:route {:name :example
-                                         :path-params path-params}}))}
-                (:fname path-params)]]))
-       (into [:div])))
+  [:div
+   [header-ui]
+   (->> the-examples
+        (map (fn [path-params]
+               [:div
+                [:a.click
+                 {:on-click
+                  (fn []
+                    (navigate-to {:route {:name :example
+                                          :path-params path-params}}))}
+                 (:fname path-params)]]))
+        (into [:div]))])
 
 (defn load-ui [{:keys [rinf] :as ctx} load+]
   (let [[v update-v] (react/useState nil)]
