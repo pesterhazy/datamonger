@@ -260,8 +260,12 @@
   (let [transform (or (some-> rinf :params :transform keyword)
                       (first (keys the-transforms)))]
     [:div
-     [:div.back [:a.click {:on-click (fn [] (navigate-to {:route {:name :root}}))}
-                 "<< back"]]
+     [:div.header
+      [:div
+       [:div.back [:a.click {:on-click (fn [] (navigate-to {:route {:name :root}}))}
+                   "<< back"]]]
+      [:div (str "fxime-" (gobj/get js/window "fxime_version"))]]
+
      [pick-ui {:xs the-transforms
                :x transform
                :on-click (fn [k]

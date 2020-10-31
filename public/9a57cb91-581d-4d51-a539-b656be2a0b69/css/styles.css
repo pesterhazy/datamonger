@@ -70,3 +70,15 @@ body {
 a:hover {
  cursor:pointer;
 }
+
+.header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.header-left {
+}
+
+.header-right {
+}

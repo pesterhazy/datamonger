@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -euo pipefail && cd "$(dirname "${BASH_SOURCE[0]}")/.."
+
+( sleep 1; open "http://localhost:5000" ) &
+
+serve -s dist/
